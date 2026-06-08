@@ -1,0 +1,6 @@
+title: 专注计时
+description: 专注计时模块 — 记录持久化、个人统计
+version: "0.1.0"
+depends_on:
+  - studyroom.users
+  - studyroom.rooms

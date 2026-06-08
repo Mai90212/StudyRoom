@@ -1,0 +1,7 @@
+title: 数据大盘
+description: 专注数据大盘模块 — 热力图、Focus Score、时间分布、好友状态、排行榜
+version: "0.1.0"
+depends_on:
+  - studyroom.users
+  - studyroom.rooms
+  - studyroom.focus

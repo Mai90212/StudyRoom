@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>在线自习室 — 测试客户端</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #1a1a2e; color: #e0e0e0; min-height: 100vh; padding: 20px; }
+  h1 { text-align: center; color: #e94560; margin-bottom: 20px; }
+  .container { max-width: 700px; margin: 0 auto; }
+  .section { background: #16213e; border-radius: 8px; padding: 16px; margin-bottom: 12px; }
+  .section h2 { font-size: 16px; margin-bottom: 10px; color: #0f3460; background: #e94560; display: inline-block; padding: 2px 10px; border-radius: 4px; }
+  .row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; flex-wrap: wrap; }
+  input, button { padding: 8px 12px; border-radius: 4px; border: none; font-size: 14px; }
+  input { background: #0f3460; color: #e0e0e0; flex: 1; min-width: 120px; }
+  input::placeholder { color: #888; }
+  button { background: #e94560; color: #fff; cursor: pointer; font-weight: bold; white-space: nowrap; }
+  button:hover { background: #c73550; }
+  button:disabled { background: #555; cursor: not-allowed; }
+  button.secondary { background: #0f3460; }
+  button.secondary:hover { background: #1a4a80; }
+  #log { background: #0d1117; border-radius: 4px; padding: 10px; height: 300px; overflow-y: auto; font-family: monospace; font-size: 13px; line-height: 1.6; }
+  #log .join { color: #4caf50; }
+  #log .leave { color: #ff9800; }
+  #log .status { color: #2196f3; }
+  #log .chat { color: #e0e0e0; }
+  #log .error { color: #f44336; }
+  #log .info { color: #888; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: bold; }
+  .badge.online { background: #4caf50; color: #fff; }
+  .badge.offline { background: #f44336; color: #fff; }
+  .badge.connected { background: #2196f3; color: #fff; }
+  #room-info { font-size: 14px; color: #aaa; margin-top: 4px; }
+  #room-info span { color: #e94560; font-weight: bold; }
+  label { font-size: 13px; color: #888; white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>自习室测试客户端</h1>
+
+  <!-- 连接配置 -->
+  <div class="section">
+    <h2>连接设置</h2>
+    <div class="row">
+      <label>服务器</label>
+      <input id="server-url" value="ws://localhost:8000" placeholder="http://localhost:8000">
+      <label>用户 ID</label>
+      <input id="user-id" value="1" style="max-width:80px">
+    </div>
+  </div>
+
+  <!-- 创建房间 -->
+  <div class="section">
+    <h2>创建房间</h2>
+    <div class="row">
+      <input id="room-name" placeholder="房间名称" value="深夜自习室">
+      <input id="max-members" placeholder="人数上限" value="10" style="max-width:100px">
+      <button onclick="createRoom()">创建</button>
+    </div>
+  </div>
+
+  <!-- 加入房间 -->
+  <div class="section">
+    <h2>加入房间</h2>
+    <div class="row">
+      <input id="invite-code" placeholder="邀请码">
+      <button onclick="joinRoom()">加入</button>
+    </div>
+  </div>
+
+  <!-- 房间状态 -->
+  <div class="section">
+    <h2>当前房间 <span id="ws-status" class="badge offline">未连接</span></h2>
+    <div id="room-info">尚未加入房间</div>
+    <div class="row" style="margin-top:8px">
+      <button id="btn-connect" onclick="connectWS()">连接 WebSocket</button>
+      <button id="btn-disconnect" class="secondary" onclick="disconnectWS()" disabled>断开</button>
+      <button id="btn-leave" class="secondary" onclick="leaveRoom()" disabled>退出房间</button>
+    </div>
+    <div class="row" style="margin-top:4px">
+      <button id="btn-focus" class="secondary" onclick="changeStatus('focusing')" disabled>设为专注中</button>
+      <button id="btn-away" class="secondary" onclick="changeStatus('away')" disabled>设为摸鱼中</button>
+      <button id="btn-heartbeat" class="secondary" onclick="sendHeartbeat()" disabled>发送心跳</button>
+    </div>
+  </div>
+
+  <!-- 消息日志 -->
+  <div class="section">
+    <h2>消息日志</h2>
+    <div id="log"><span class="info">等待操作…</span></div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+let serverHttp = '';
+let serverWs = '';
+let ws = null;
+let currentRoomId = null;
+
+function log(msg, cls = '') {
+  const div = document.createElement('div');
+  div.className = cls;
+  div.textContent = new Date().toLocaleTimeString() + ' ' + msg;
+  $('log').appendChild(div);
+  $('log').scrollTop = $('log').scrollHeight;
+}
+
+function getHttpBase() {
+  const url = $('server-url').value.trim();
+  return url.replace(/^ws/, 'http');
+}
+
+function getWsBase() {
+  const url = $('server-url').value.trim();
+  return url.replace(/^http/, 'ws');
+}
+
+function getUserId() {
+  return $('user-id').value.trim();
+}
+
+function setConnected(roomId, inviteCode) {
+  currentRoomId = roomId;
+  $('ws-status').textContent = '已连接';
+  $('ws-status').className = 'badge connected';
+  $('btn-connect').disabled = true;
+  $('btn-disconnect').disabled = false;
+  $('btn-leave').disabled = false;
+  $('btn-focus').disabled = false;
+  $('btn-away').disabled = false;
+  $('btn-heartbeat').disabled = false;
+  $('room-info').innerHTML = '房间 ID: <span>' + roomId + '</span> | 邀请码: <span>' + (inviteCode || '-') + '</span>';
+}
+
+function setDisconnected() {
+  currentRoomId = null;
+  $('ws-status').textContent = '未连接';
+  $('ws-status').className = 'badge offline';
+  $('btn-connect').disabled = false;
+  $('btn-disconnect').disabled = true;
+  $('btn-leave').disabled = true;
+  $('btn-focus').disabled = true;
+  $('btn-away').disabled = true;
+  $('btn-heartbeat').disabled = true;
+}
+
+// ---- HTTP API ----
+
+async function createRoom() {
+  const name = $('room-name').value.trim();
+  const max = $('max-members').value.trim() || '10';
+  if (!name) return log('请输入房间名称', 'error');
+  try {
+    const resp = await fetch(getHttpBase() + '/rooms?user_id=' + getUserId(), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, max_members: parseInt(max) }),
+    });
+    const data = await resp.json();
+    if (!resp.ok) { log('创建失败: ' + JSON.stringify(data), 'error'); return; }
+    log('房间创建成功! ID=' + data.id + ' 邀请码=' + data.invite_code, 'join');
+    $('invite-code').value = data.invite_code;
+    currentRoomId = data.id;
+    setConnected(data.id, data.invite_code);
+    connectWS();
+  } catch (e) {
+    log('请求失败: ' + e.message, 'error');
+  }
+}
+
+async function joinRoom() {
+  const code = $('invite-code').value.trim();
+  if (!code) return log('请输入邀请码', 'error');
+  try {
+    const resp = await fetch(getHttpBase() + '/rooms/join?user_id=' + getUserId(), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ invite_code: code }),
+    });
+    const data = await resp.json();
+    if (!resp.ok) { log('加入失败: ' + JSON.stringify(data), 'error'); return; }
+    log('加入房间成功! ID=' + data.id, 'join');
+    currentRoomId = data.id;
+    setConnected(data.id, code);
+    connectWS();
+  } catch (e) {
+    log('请求失败: ' + e.message, 'error');
+  }
+}
+
+async function leaveRoom() {
+  if (!currentRoomId) return;
+  try {
+    await fetch(getHttpBase() + '/rooms/' + currentRoomId + '/leave?user_id=' + getUserId(), {
+      method: 'POST',
+    });
+    log('已退出房间', 'leave');
+  } catch (e) {
+    log('退出请求失败: ' + e.message, 'error');
+  }
+  disconnectWS();
+}
+
+// ---- WebSocket ----
+
+function connectWS() {
+  if (!currentRoomId) return log('请先创建或加入房间', 'error');
+  if (ws && ws.readyState === WebSocket.OPEN) return log('WebSocket 已连接', 'info');
+
+  const url = getWsBase() + '/rooms/' + currentRoomId + '/ws?user_id=' + getUserId();
+  log('正在连接: ' + url, 'info');
+  ws = new WebSocket(url);
+
+  ws.onopen = () => {
+    log('WebSocket 已连接', 'join');
+    $('ws-status').textContent = '已连接';
+    $('ws-status').className = 'badge connected';
+    $('btn-connect').disabled = true;
+    $('btn-disconnect').disabled = false;
+    $('btn-leave').disabled = false;
+    $('btn-focus').disabled = false;
+    $('btn-away').disabled = false;
+    $('btn-heartbeat').disabled = false;
+    sendHeartbeat();
+    setInterval(() => { if (ws && ws.readyState === WebSocket.OPEN) sendHeartbeat(); }, 10000);
+  };
+
+  ws.onmessage = (event) => {
+    try {
+      const msg = JSON.parse(event.data);
+      switch (msg.type) {
+        case 'user_join':
+          log('用户 ' + msg.user_id + ' 加入了房间 [' + msg.status + ']', 'join');
+          break;
+        case 'user_leave':
+          log('用户 ' + msg.user_id + ' 离开了房间 (' + msg.reason + ')', 'leave');
+          break;
+        case 'user_status':
+          log('用户 ' + msg.user_id + ' 状态 → ' + msg.status, 'status');
+          break;
+        case 'chat':
+          log('[' + msg.user_id + ']: ' + msg.message, 'chat');
+          break;
+        case 'error':
+          log('服务器错误: ' + msg.message, 'error');
+          break;
+        default:
+          log('收到: ' + JSON.stringify(msg), 'info');
+      }
+    } catch (e) {
+      log('收到原始消息: ' + event.data, 'info');
+    }
+  };
+
+  ws.onclose = (event) => {
+    log('WebSocket 已断开 (code=' + event.code + ')', 'leave');
+    setDisconnected();
+    ws = null;
+  };
+
+  ws.onerror = () => {
+    log('WebSocket 连接错误', 'error');
+  };
+}
+
+function disconnectWS() {
+  if (ws) {
+    ws.close();
+    ws = null;
+  }
+  setDisconnected();
+}
+
+function sendHeartbeat() {
+  if (!ws || ws.readyState !== WebSocket.OPEN) return;
+  ws.send(JSON.stringify({ type: 'heartbeat', ts: Date.now() }));
+}
+
+function changeStatus(status) {
+  if (!ws || ws.readyState !== WebSocket.OPEN) return log('请先连接 WebSocket', 'error');
+  ws.send(JSON.stringify({ type: 'status_change', status }));
+  log('发送状态变更: ' + status, 'status');
+}
+</script>
+</body>
+</html>

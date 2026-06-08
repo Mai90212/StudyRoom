@@ -1,0 +1,5 @@
+title: 自习室
+description: 自习室模块 — 房间管理、成员状态、WebSocket 通信
+version: "0.1.0"
+depends_on:
+  - studyroom.users

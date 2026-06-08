@@ -1,0 +1,28 @@
+[project]
+name = "studyroom"
+version = "0.1.0"
+description = "在线自习室 — FastAPI + WebSocket + bedrock-py"
+requires-python = ">=3.12"
+dependencies = [
+    "bedrock-core>=0.1.0",
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.34.0",
+    "pyjwt>=2.10.0",
+]
+
+[project.scripts]
+studyroom = "studyroom.cli:entrypoint"
+
+[build-system]
+requires = ["uv_build>=0.8.15,<0.9.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-root = "src"
+module-name = "studyroom"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.2",
+    "pytest-asyncio>=1.2.0",
+]
