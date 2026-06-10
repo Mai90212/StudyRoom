@@ -23,7 +23,17 @@ from .exc import (
 )
 from .models import User, VerificationCode
 
-JWT_SECRET = os.environ.get("JWT_SECRET", "studyroom-dev-secret")
+JWT_SECRET = os.environ.get("JWT_SECRET", "").strip()
+if not JWT_SECRET:
+    raise RuntimeError(
+        "JWT_SECRET 环境变量未设置。请在 backend/.env 中配置 JWT_SECRET。\n"
+        "生成强随机值：python3 -c 'import secrets; print(secrets.token_urlsafe(64))'"
+    )
+if len(JWT_SECRET) < 32:
+    raise RuntimeError(
+        f"JWT_SECRET 长度 {len(JWT_SECRET)} 过短（要求 ≥32 字符）。"
+        "请使用 secrets.token_urlsafe(64) 生成。"
+    )
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRE_HOURS = 72
 

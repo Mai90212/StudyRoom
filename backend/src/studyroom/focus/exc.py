@@ -9,3 +9,4 @@ class InvalidFocusData(BedrockExc):
     """上报数据异常。"""
 
     detail: str = "专注数据异常。"
+    status_code: int = 400

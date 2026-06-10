@@ -43,28 +43,10 @@ app.add_middleware(
 )
 
 
-# 注册 BedrockExc 异常处理器
 @app.exception_handler(bedrock.exc.BedrockExc)
 async def bedrock_exc_handler(request: Request, exc: bedrock.exc.BedrockExc) -> JSONResponse:
-    """将 BedrockExc 转换为 HTTP 响应。"""
-    # 根据异常类型设置状态码
-    from studyroom.users.exc import Unauthorized
-    from studyroom.rooms.exc import RoomNotFound, RoomFull, InvalidInviteCode, UserAlreadyInRoom, UserNotInRoom, NotRoomOwner
-    from studyroom.dashboard.exc import CannotFollowSelf, AlreadyFollowing, NotFollowing, UserNotFound
-
-    status_code = 400  # 默认 400
-
-    if isinstance(exc, Unauthorized):
-        status_code = 401
-    elif isinstance(exc, (RoomNotFound, UserNotFound)):
-        status_code = 404
-    elif isinstance(exc, (RoomFull, UserAlreadyInRoom, AlreadyFollowing)):
-        status_code = 409
-    elif isinstance(exc, (NotRoomOwner, CannotFollowSelf, NotFollowing, UserNotInRoom)):
-        status_code = 403
-    elif isinstance(exc, InvalidInviteCode):
-        status_code = 400
-
+    """业务异常 → HTTP 响应。状态码由异常类的 status_code 类属性决定，默认 400。"""
+    status_code = getattr(exc, "status_code", 400)
     return JSONResponse(
         status_code=status_code,
         content={"detail": exc.detail},

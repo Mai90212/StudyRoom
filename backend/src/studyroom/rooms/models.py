@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import random
+import secrets
 import string
 from datetime import datetime
 
@@ -13,11 +13,12 @@ from bedrock.database.base import BedrockModel
 
 MAX_ROOM_SIZE = 20
 
+_INVITE_CODE_CHARS = string.ascii_letters + string.digits
+
 
 def _generate_invite_code() -> str:
-    """生成 6 位数字+字母邀请码。"""
-    chars = string.ascii_letters + string.digits
-    return "".join(random.choices(chars, k=6))
+    """6 位邀请码 — 必须用 secrets（密码学安全），不可改回 random（可预测，会导致房间被猜中）。"""
+    return "".join(secrets.choice(_INVITE_CODE_CHARS) for _ in range(6))
 
 
 class Room(BedrockModel):
