@@ -1,6 +1,11 @@
 <template>
   <router-view />
+  <Toaster />
 </template>
+
+<script setup>
+import { Toaster } from "@/components/ui/toaster";
+</script>
 
 <style>
 :root {
