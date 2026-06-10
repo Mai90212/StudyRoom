@@ -1,12 +1,10 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-/* =============================================================
- * StudyRoom Theme — Warm Library (light) + Night Library (dark)
- * Token bridge: shadcn-vue tokens (OKLCH) + legacy CSS variables
- * pointing to identical OKLCH values. Pre-existing components
- * keep working until Wave 5 strips the aliases.
- * ============================================================= */
+/* Tailwind v4 explicit source scan — without these, dev-mode HMR can miss
+ * utility class generation (auto-detection works in build but is flaky in dev). */
+@source "../**/*.{vue,js,ts}";
+@source "../../index.html";
 
 @custom-variant dark (&:is(.dark *));
 
