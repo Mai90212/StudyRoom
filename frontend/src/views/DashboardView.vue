@@ -1,98 +1,120 @@
 <template>
-  <div class="dashboard">
-    <!-- 顶部导航 -->
-    <div class="dashboard-nav">
-      <button class="btn-back" @click="goBack" title="返回大厅">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-      </button>
-      <h1 class="dashboard-title">专注数据</h1>
-      <button class="btn-settings" @click="showSettings = true" title="设置">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-      </button>
-    </div>
+  <div class="min-h-screen bg-background pb-12">
+    <div class="mx-auto max-w-4xl px-5">
+      <!-- Top nav -->
+      <header class="flex items-center justify-between py-4">
+        <Button variant="outline" size="icon" class="h-9 w-9" title="返回大厅" @click="goBack">
+          <ArrowLeft class="h-4 w-4" />
+        </Button>
+        <h1 class="font-serif text-2xl font-bold text-foreground">专注数据</h1>
+        <Dialog v-model:open="showSettings">
+          <DialogTrigger as-child>
+            <Button variant="outline" size="icon" class="h-9 w-9" title="设置">
+              <Settings class="h-4 w-4" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent class="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle class="font-serif">专注设置</DialogTitle>
+              <DialogDescription>调整你的每日目标和连胜要求</DialogDescription>
+            </DialogHeader>
+            <div class="flex flex-col gap-4 py-2">
+              <div class="flex flex-col gap-1.5">
+                <Label for="daily-goal">每日目标（分钟）</Label>
+                <Input
+                  id="daily-goal"
+                  v-model.number="settings.daily_goal_minutes"
+                  type="number"
+                  min="1"
+                  max="480"
+                />
+              </div>
+              <div class="flex flex-col gap-1.5">
+                <Label for="streak-goal">连胜最低要求（分钟）</Label>
+                <Input
+                  id="streak-goal"
+                  v-model.number="settings.streak_goal_minutes"
+                  type="number"
+                  min="1"
+                  max="120"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" @click="showSettings = false">取消</Button>
+              <Button @click="saveSettings">保存</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </header>
 
-    <!-- Tab 切换 -->
-    <div class="tabs">
-      <button
-        v-for="tab in tabs"
-        :key="tab.key"
-        :class="['tab-btn', { active: activeTab === tab.key }]"
-        @click="activeTab = tab.key"
-      >
-        {{ tab.label }}
-      </button>
-    </div>
+      <!-- Tabs -->
+      <Tabs v-model="activeTab" class="w-full">
+        <TabsList class="grid w-full grid-cols-3">
+          <TabsTrigger value="stats">数据大盘</TabsTrigger>
+          <TabsTrigger value="friends">好友状态</TabsTrigger>
+          <TabsTrigger value="leaderboard">排行榜</TabsTrigger>
+        </TabsList>
 
-    <!-- 数据大盘 Tab -->
-    <div v-if="activeTab === 'stats'" class="tab-content">
-      <StatsCards :stats="stats" />
-      <Heatmap :data="heatmapData" />
-      <StreakBadge :streak="streak" />
-      <DistributionChart :data="distributionData" />
-      <ScoreGauge :score="score" />
-    </div>
+        <TabsContent value="stats" class="flex flex-col gap-5">
+          <StatsCards :stats="stats" />
+          <Heatmap :data="heatmapData" />
+          <StreakBadge :streak="streak" />
+          <DistributionChart :data="distributionData" />
+          <ScoreGauge :score="score" />
+        </TabsContent>
 
-    <!-- 好友状态 Tab -->
-    <div v-if="activeTab === 'friends'" class="tab-content">
-      <FriendStatus :users="followingList" @refresh="fetchFollowing" />
-    </div>
+        <TabsContent value="friends">
+          <FriendStatus :users="followingList" @refresh="fetchFollowing" />
+        </TabsContent>
 
-    <!-- 排行榜 Tab -->
-    <div v-if="activeTab === 'leaderboard'" class="tab-content">
-      <Leaderboard
-        :items="leaderboard"
-        :period="leaderboardPeriod"
-        @change-period="changeLeaderboardPeriod"
-      />
+        <TabsContent value="leaderboard">
+          <Leaderboard
+            :items="leaderboard"
+            :period="leaderboardPeriod"
+            @change-period="changeLeaderboardPeriod"
+          />
+        </TabsContent>
+      </Tabs>
     </div>
-
-    <!-- 设置弹窗 -->
-    <transition name="overlay">
-      <div v-if="showSettings" class="settings-overlay" @click.self="showSettings = false">
-        <div class="settings-card">
-          <h2>专注设置</h2>
-          <div class="setting-item">
-            <label>每日目标（分钟）</label>
-            <input v-model.number="settings.daily_goal_minutes" type="number" min="1" max="480" />
-          </div>
-          <div class="setting-item">
-            <label>连胜最低要求（分钟）</label>
-            <input v-model.number="settings.streak_goal_minutes" type="number" min="1" max="120" />
-          </div>
-          <div class="settings-actions">
-            <button class="btn-cancel" @click="showSettings = false">取消</button>
-            <button class="btn-save" @click="saveSettings">保存</button>
-          </div>
-        </div>
-      </div>
-    </transition>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
-import { api } from "../utils/api.js";
-import StatsCards from "../components/dashboard/StatsCards.vue";
-import Heatmap from "../components/dashboard/Heatmap.vue";
-import DistributionChart from "../components/dashboard/DistributionChart.vue";
-import ScoreGauge from "../components/dashboard/ScoreGauge.vue";
-import StreakBadge from "../components/dashboard/StreakBadge.vue";
-import FriendStatus from "../components/dashboard/FriendStatus.vue";
-import Leaderboard from "../components/dashboard/Leaderboard.vue";
+import { ArrowLeft, Settings } from "@lucide/vue";
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { toast } from "@/components/ui/toaster";
+
+import StatsCards from "@/components/dashboard/StatsCards.vue";
+import Heatmap from "@/components/dashboard/Heatmap.vue";
+import DistributionChart from "@/components/dashboard/DistributionChart.vue";
+import ScoreGauge from "@/components/dashboard/ScoreGauge.vue";
+import StreakBadge from "@/components/dashboard/StreakBadge.vue";
+import FriendStatus from "@/components/dashboard/FriendStatus.vue";
+import Leaderboard from "@/components/dashboard/Leaderboard.vue";
+
+import { api } from "@/utils/api.js";
 
 const router = useRouter();
 
 const activeTab = ref("stats");
 const showSettings = ref(false);
 
-const tabs = [
-  { key: "stats", label: "数据大盘" },
-  { key: "friends", label: "好友状态" },
-  { key: "leaderboard", label: "排行榜" },
-];
-
-// 数据
 const stats = ref({
   today_minutes: 0,
   week_minutes: 0,
@@ -110,7 +132,6 @@ const score = ref({
   away_count: 0,
   focus_minutes: 0,
 });
-
 const streak = ref({
   current_streak: 0,
   longest_streak: 0,
@@ -126,7 +147,6 @@ const settings = ref({
   streak_goal_minutes: 30,
 });
 
-// 数据获取
 async function fetchStats() {
   try {
     stats.value = await api("/dashboard/stats");
@@ -186,12 +206,14 @@ async function saveSettings() {
       body: JSON.stringify(settings.value),
     });
     showSettings.value = false;
-    // 刷新数据
+    toast.success("设置已保存");
     fetchStats();
     fetchHeatmap();
     fetchScore();
     fetchStreak();
-  } catch {}
+  } catch (e) {
+    toast.error(e.data?.detail || "保存失败");
+  }
 }
 
 function changeLeaderboardPeriod(period) {
@@ -203,7 +225,6 @@ function goBack() {
   router.push("/lobby");
 }
 
-// 初始化
 onMounted(() => {
   fetchStats();
   fetchHeatmap();
@@ -220,166 +241,3 @@ watch(activeTab, (tab) => {
   if (tab === "leaderboard") fetchLeaderboard();
 });
 </script>
-
-<style scoped>
-.dashboard {
-  min-height: 100vh;
-  background: var(--bg);
-  padding: 0 20px 40px;
-}
-
-/* ---- Navigation ---- */
-.dashboard-nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 0;
-  max-width: 800px;
-  margin: 0 auto;
-}
-.btn-back {
-  width: 36px; height: 36px;
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius-xs);
-  background: var(--surface);
-  color: var(--text-secondary);
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: all 0.2s;
-}
-.btn-back:hover { border-color: var(--accent); color: var(--accent); }
-.dashboard-title {
-  font-family: var(--font-display);
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--text);
-}
-.btn-settings {
-  width: 36px; height: 36px;
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius-xs);
-  background: var(--surface);
-  color: var(--text-secondary);
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: all 0.2s;
-}
-.btn-settings:hover { border-color: var(--accent); color: var(--accent); }
-
-/* ---- Tabs ---- */
-.tabs {
-  display: flex;
-  gap: 4px;
-  max-width: 800px;
-  margin: 0 auto 24px;
-  background: var(--surface);
-  border-radius: var(--radius-sm);
-  padding: 4px;
-  box-shadow: var(--shadow-xs);
-}
-.tab-btn {
-  flex: 1;
-  padding: 10px 16px;
-  border: none;
-  border-radius: var(--radius-xs);
-  background: transparent;
-  color: var(--text-secondary);
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.tab-btn:hover { color: var(--text); background: var(--bg); }
-.tab-btn.active {
-  background: var(--accent);
-  color: #fff;
-  box-shadow: var(--shadow-sm);
-}
-
-/* ---- Tab Content ---- */
-.tab-content {
-  max-width: 800px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-/* ---- Settings Overlay ---- */
-.settings-overlay {
-  position: fixed; inset: 0; z-index: 9999;
-  background: rgba(61, 53, 41, 0.88);
-  backdrop-filter: blur(12px);
-  display: flex; align-items: center; justify-content: center;
-  padding: 24px;
-}
-.settings-card {
-  background: var(--surface);
-  border-radius: var(--radius);
-  padding: 32px;
-  max-width: 400px;
-  width: 100%;
-  box-shadow: var(--shadow-lg);
-}
-.settings-card h2 {
-  font-family: var(--font-display);
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--text);
-  margin-bottom: 24px;
-}
-.setting-item {
-  margin-bottom: 20px;
-}
-.setting-item label {
-  display: block;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text);
-  margin-bottom: 8px;
-}
-.setting-item input {
-  width: 100%;
-  padding: 10px 14px;
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius-xs);
-  font-size: 14px;
-  background: var(--bg);
-  color: var(--text);
-}
-.setting-item input:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(91, 93, 156, 0.1);
-}
-.settings-actions {
-  display: flex;
-  gap: 12px;
-  justify-content: flex-end;
-  margin-top: 24px;
-}
-.btn-cancel {
-  padding: 10px 20px;
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius-xs);
-  background: var(--surface);
-  color: var(--text-secondary);
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.btn-cancel:hover { border-color: var(--text-secondary); color: var(--text); }
-.btn-save {
-  padding: 10px 20px;
-  border: none;
-  border-radius: var(--radius-xs);
-  background: var(--accent);
-  color: #fff;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.btn-save:hover { background: var(--accent-hover); }
-</style>

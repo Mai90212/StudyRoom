@@ -1,44 +1,47 @@
 <template>
-  <div class="heatmap-card">
-    <div class="card-header">
-      <h3>学习热力图</h3>
-      <span class="card-hint">最近 180 天</span>
-    </div>
-    <div class="heatmap-container" ref="heatmapRef"></div>
-    <div class="heatmap-legend">
-      <span class="legend-label">少</span>
-      <div class="legend-box level-0"></div>
-      <div class="legend-box level-1"></div>
-      <div class="legend-box level-2"></div>
-      <div class="legend-box level-3"></div>
-      <div class="legend-box level-4"></div>
-      <span class="legend-label">多</span>
-    </div>
-  </div>
+  <Card>
+    <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-3">
+      <CardTitle class="flex items-center gap-2 font-serif text-base">
+        <Activity class="h-4 w-4 text-primary" />
+        学习热力图
+      </CardTitle>
+      <span class="text-xs text-muted-foreground">最近 180 天</span>
+    </CardHeader>
+    <CardContent>
+      <div ref="heatmapRef" class="h-[180px] w-full"></div>
+      <div class="mt-3 flex items-center justify-end gap-1">
+        <span class="mr-1 text-xs text-muted-foreground">少</span>
+        <div v-for="(c, i) in palette" :key="i" class="h-3 w-3 rounded-sm" :style="{ background: c }"></div>
+        <span class="ml-1 text-xs text-muted-foreground">多</span>
+      </div>
+    </CardContent>
+  </Card>
 </template>
 
 <script setup>
-import { ref, onMounted, watch, nextTick } from "vue";
+import { ref, onMounted, onBeforeUnmount, watch, nextTick } from "vue";
 import * as echarts from "echarts/core";
 import { HeatmapChart } from "echarts/charts";
 import { CalendarComponent, VisualMapComponent, TooltipComponent } from "echarts/components";
 import { CanvasRenderer } from "echarts/renderers";
+import { Activity } from "@lucide/vue";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 echarts.use([HeatmapChart, CalendarComponent, VisualMapComponent, TooltipComponent, CanvasRenderer]);
 
 const props = defineProps({
-  data: {
-    type: Array,
-    default: () => [],
-  },
+  data: { type: Array, default: () => [] },
 });
 
 const heatmapRef = ref(null);
 let chart = null;
+let resizeHandler = null;
+
+// 暖调书房 sage-green 渐变（heatmap 5 级）—— 对应 OKLCH design tokens 的 HEX 等价
+const palette = ["#f0ebe0", "#bdd7c0", "#7aa07d", "#5a8460", "#3d6443"];
 
 function initChart() {
   if (!heatmapRef.value) return;
-
   chart = echarts.init(heatmapRef.value);
   updateChart();
 }
@@ -50,13 +53,11 @@ function updateChart() {
   const startDate = new Date(today);
   startDate.setDate(startDate.getDate() - 179);
 
-  // 构建数据映射
   const dataMap = {};
   props.data.forEach((item) => {
     dataMap[item.date] = item.minutes;
   });
 
-  // 生成完整 180 天数据
   const chartData = [];
   const current = new Date(startDate);
   while (current <= today) {
@@ -65,45 +66,27 @@ function updateChart() {
     current.setDate(current.getDate() + 1);
   }
 
-  const option = {
+  chart.setOption({
     tooltip: {
-      formatter: function (params) {
-        const date = params.data[0];
-        const minutes = params.data[1];
-        return `${date}<br/>专注 ${minutes} 分钟`;
-      },
+      formatter: (params) => `${params.data[0]}<br/>专注 ${params.data[1]} 分钟`,
     },
     visualMap: {
       show: false,
       min: 0,
       max: 120,
-      inRange: {
-        color: ["#f0ebe0", "#b5d4b8", "#6a9b6f", "#4a7a50", "#2d5a30"],
-      },
+      inRange: { color: palette },
     },
     calendar: {
       range: [startDate.toISOString().split("T")[0], today.toISOString().split("T")[0]],
       cellSize: [14, 14],
       orient: "horizontal",
-      splitLine: {
-        show: false,
-      },
-      itemStyle: {
-        borderWidth: 3,
-        borderColor: "#faf7f2",
-        borderRadius: 3,
-      },
-      yearLabel: {
-        show: false,
-      },
-      monthLabel: {
-        show: true,
-        color: "#8c8274",
-        fontSize: 11,
-      },
+      splitLine: { show: false },
+      itemStyle: { borderWidth: 3, borderColor: "#faf7f2", borderRadius: 3 },
+      yearLabel: { show: false },
+      monthLabel: { show: true, color: "#928879", fontSize: 11 },
       dayLabel: {
         show: true,
-        color: "#8c8274",
+        color: "#928879",
         fontSize: 11,
         nameMap: ["日", "一", "二", "三", "四", "五", "六"],
       },
@@ -112,88 +95,21 @@ function updateChart() {
       top: 35,
       bottom: 10,
     },
-    series: [
-      {
-        type: "heatmap",
-        coordinateSystem: "calendar",
-        data: chartData,
-      },
-    ],
-  };
-
-  chart.setOption(option);
+    series: [{ type: "heatmap", coordinateSystem: "calendar", data: chartData }],
+  });
 }
 
 onMounted(() => {
-  nextTick(() => {
-    initChart();
-  });
+  nextTick(initChart);
+  resizeHandler = () => chart?.resize();
+  window.addEventListener("resize", resizeHandler);
+});
 
-  window.addEventListener("resize", () => {
-    chart?.resize();
-  });
+onBeforeUnmount(() => {
+  if (resizeHandler) window.removeEventListener("resize", resizeHandler);
+  chart?.dispose();
+  chart = null;
 });
 
 watch(() => props.data, updateChart, { deep: true });
 </script>
-
-<style scoped>
-.heatmap-card {
-  background: var(--surface);
-  border-radius: var(--radius);
-  padding: 20px;
-  box-shadow: var(--shadow-xs);
-  border: 1px solid var(--border-light);
-}
-
-.card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-}
-
-.card-header h3 {
-  font-family: var(--font-display);
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text);
-}
-
-.card-hint {
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.heatmap-container {
-  width: 100%;
-  height: 180px;
-  margin-top: 8px;
-}
-
-.heatmap-legend {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 4px;
-  margin-top: 12px;
-}
-
-.legend-label {
-  font-size: 11px;
-  color: var(--text-muted);
-  margin: 0 4px;
-}
-
-.legend-box {
-  width: 12px;
-  height: 12px;
-  border-radius: 2px;
-}
-
-.level-0 { background: #f0ebe0; }
-.level-1 { background: #b5d4b8; }
-.level-2 { background: #6a9b6f; }
-.level-3 { background: #4a7a50; }
-.level-4 { background: #2d5a30; }
-</style>

@@ -1,28 +1,35 @@
 <template>
-  <div class="score-card">
-    <div class="card-header">
-      <h3>Focus Score</h3>
-      <span class="card-hint">今日评分</span>
-    </div>
-    <div class="gauge-container" ref="gaugeRef"></div>
-    <div class="score-details">
-      <div class="detail-item">
-        <span class="detail-label">专注时长</span>
-        <span class="detail-value">{{ score.focus_minutes }} 分钟</span>
+  <Card>
+    <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
+      <CardTitle class="flex items-center gap-2 font-serif text-base">
+        <Gauge class="h-4 w-4 text-primary" />
+        Focus Score
+      </CardTitle>
+      <span class="text-xs text-muted-foreground">今日评分</span>
+    </CardHeader>
+    <CardContent>
+      <div ref="gaugeRef" class="h-[220px] w-full"></div>
+      <div class="mt-2 flex justify-center gap-8">
+        <div class="flex flex-col items-center gap-1">
+          <span class="text-xs text-muted-foreground">专注时长</span>
+          <span class="font-mono text-sm font-semibold">{{ score.focus_minutes }} 分钟</span>
+        </div>
+        <div class="flex flex-col items-center gap-1">
+          <span class="text-xs text-muted-foreground">切屏次数</span>
+          <span class="font-mono text-sm font-semibold">{{ score.away_count }} 次</span>
+        </div>
       </div>
-      <div class="detail-item">
-        <span class="detail-label">切屏次数</span>
-        <span class="detail-value">{{ score.away_count }} 次</span>
-      </div>
-    </div>
-  </div>
+    </CardContent>
+  </Card>
 </template>
 
 <script setup>
-import { ref, onMounted, watch, nextTick } from "vue";
+import { ref, onMounted, onBeforeUnmount, watch, nextTick } from "vue";
 import * as echarts from "echarts/core";
 import { GaugeChart } from "echarts/charts";
 import { CanvasRenderer } from "echarts/renderers";
+import { Gauge } from "@lucide/vue";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 echarts.use([GaugeChart, CanvasRenderer]);
 
@@ -41,10 +48,15 @@ const props = defineProps({
 
 const gaugeRef = ref(null);
 let chart = null;
+let resizeHandler = null;
+
+// 三档分数色（amber → light-sage → focus-sage）—— 对应 design tokens
+const AMBER = "#cf9a6f";
+const LIGHT_SAGE = "#bdd7c0";
+const SAGE = "#7aa07d";
 
 function initChart() {
   if (!gaugeRef.value) return;
-
   chart = echarts.init(gaugeRef.value);
   updateChart();
 }
@@ -53,16 +65,11 @@ function updateChart() {
   if (!chart) return;
 
   const scoreValue = props.score.score || 0;
+  let mainColor = SAGE;
+  if (scoreValue < 40) mainColor = AMBER;
+  else if (scoreValue < 70) mainColor = LIGHT_SAGE;
 
-  // 根据分数设置颜色
-  let color = "#6a9b6f"; // 绿色
-  if (scoreValue < 40) {
-    color = "#d4956b"; // 橙色
-  } else if (scoreValue < 70) {
-    color = "#b5d4b8"; // 浅绿色
-  }
-
-  const option = {
+  chart.setOption({
     series: [
       {
         type: "gauge",
@@ -73,38 +80,23 @@ function updateChart() {
         min: 0,
         max: 100,
         splitNumber: 10,
-        itemStyle: {
-          color: color,
-        },
-        progress: {
-          show: true,
-          width: 16,
-        },
-        pointer: {
-          show: false,
-        },
+        itemStyle: { color: mainColor },
+        progress: { show: true, width: 16 },
+        pointer: { show: false },
         axisLine: {
           lineStyle: {
             width: 16,
             color: [
-              [0.4, "#d4956b"],
-              [0.7, "#b5d4b8"],
-              [1, "#6a9b6f"],
+              [0.4, AMBER],
+              [0.7, LIGHT_SAGE],
+              [1, SAGE],
             ],
           },
         },
-        axisTick: {
-          show: false,
-        },
-        splitLine: {
-          show: false,
-        },
-        axisLabel: {
-          show: false,
-        },
-        title: {
-          show: false,
-        },
+        axisTick: { show: false },
+        splitLine: { show: false },
+        axisLabel: { show: false },
+        title: { show: false },
         detail: {
           valueAnimation: true,
           width: "60%",
@@ -116,87 +108,23 @@ function updateChart() {
           formatter: "{value}",
           color: "inherit",
         },
-        data: [
-          {
-            value: scoreValue,
-          },
-        ],
+        data: [{ value: scoreValue }],
       },
     ],
-  };
-
-  chart.setOption(option);
+  });
 }
 
 onMounted(() => {
-  nextTick(() => {
-    initChart();
-  });
+  nextTick(initChart);
+  resizeHandler = () => chart?.resize();
+  window.addEventListener("resize", resizeHandler);
+});
 
-  window.addEventListener("resize", () => {
-    chart?.resize();
-  });
+onBeforeUnmount(() => {
+  if (resizeHandler) window.removeEventListener("resize", resizeHandler);
+  chart?.dispose();
+  chart = null;
 });
 
 watch(() => props.score, updateChart, { deep: true });
 </script>
-
-<style scoped>
-.score-card {
-  background: var(--surface);
-  border-radius: var(--radius);
-  padding: 20px;
-  box-shadow: var(--shadow-xs);
-  border: 1px solid var(--border-light);
-}
-
-.card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 8px;
-}
-
-.card-header h3 {
-  font-family: var(--font-display);
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text);
-}
-
-.card-hint {
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.gauge-container {
-  width: 100%;
-  height: 220px;
-}
-
-.score-details {
-  display: flex;
-  justify-content: center;
-  gap: 32px;
-  margin-top: 8px;
-}
-
-.detail-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
-
-.detail-label {
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.detail-value {
-  font-family: var(--font-mono);
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text);
-}
-</style>

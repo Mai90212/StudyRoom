@@ -1,35 +1,44 @@
 <template>
-  <div class="distribution-card">
-    <div class="card-header">
-      <h3>专注时间分布</h3>
-      <span class="card-hint">最近 7 天平均</span>
-    </div>
-    <div class="chart-container" ref="chartRef"></div>
-  </div>
+  <Card>
+    <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-3">
+      <CardTitle class="flex items-center gap-2 font-serif text-base">
+        <LineChartIcon class="h-4 w-4 text-primary" />
+        专注时间分布
+      </CardTitle>
+      <span class="text-xs text-muted-foreground">最近 7 天平均</span>
+    </CardHeader>
+    <CardContent>
+      <div ref="chartRef" class="h-[250px] w-full"></div>
+    </CardContent>
+  </Card>
 </template>
 
 <script setup>
-import { ref, onMounted, watch, nextTick } from "vue";
+import { ref, onMounted, onBeforeUnmount, watch, nextTick } from "vue";
 import * as echarts from "echarts/core";
 import { LineChart } from "echarts/charts";
 import { GridComponent, TooltipComponent } from "echarts/components";
 import { CanvasRenderer } from "echarts/renderers";
+import { LineChart as LineChartIcon } from "@lucide/vue";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 echarts.use([LineChart, GridComponent, TooltipComponent, CanvasRenderer]);
 
 const props = defineProps({
-  data: {
-    type: Array,
-    default: () => [],
-  },
+  data: { type: Array, default: () => [] },
 });
 
 const chartRef = ref(null);
 let chart = null;
+let resizeHandler = null;
+
+// Sage-green focus token (OKLCH(0.624 0.090 145) ≈ #7aa07d)
+const FOCUS = "#7aa07d";
+const MUTED = "#928879";
+const BORDER = "#e6e0d3";
 
 function initChart() {
   if (!chartRef.value) return;
-
   chart = echarts.init(chartRef.value);
   updateChart();
 }
@@ -37,7 +46,6 @@ function initChart() {
 function updateChart() {
   if (!chart) return;
 
-  // 构建 0-23 小时数据
   const hours = Array.from({ length: 24 }, (_, i) => i);
   const dataMap = {};
   props.data.forEach((item) => {
@@ -45,51 +53,28 @@ function updateChart() {
   });
   const values = hours.map((h) => dataMap[h] || 0);
 
-  const option = {
+  chart.setOption({
     tooltip: {
       trigger: "axis",
-      formatter: function (params) {
+      formatter: (params) => {
         const hour = params[0].axisValue;
         const minutes = params[0].value;
-        return `${hour}:00<br/>平均专注 ${minutes.toFixed(1)} 分钟`;
+        return `${hour}<br/>平均专注 ${minutes.toFixed(1)} 分钟`;
       },
     },
-    grid: {
-      left: 50,
-      right: 20,
-      top: 20,
-      bottom: 40,
-    },
+    grid: { left: 50, right: 20, top: 20, bottom: 40 },
     xAxis: {
       type: "category",
       data: hours.map((h) => `${h}:00`),
-      axisLabel: {
-        color: "#8c8274",
-        fontSize: 11,
-        interval: 2,
-      },
-      axisLine: {
-        lineStyle: {
-          color: "#e8e2d6",
-        },
-      },
+      axisLabel: { color: MUTED, fontSize: 11, interval: 2 },
+      axisLine: { lineStyle: { color: BORDER } },
     },
     yAxis: {
       type: "value",
       name: "分钟",
-      nameTextStyle: {
-        color: "#8c8274",
-        fontSize: 11,
-      },
-      axisLabel: {
-        color: "#8c8274",
-        fontSize: 11,
-      },
-      splitLine: {
-        lineStyle: {
-          color: "#f0ebe0",
-        },
-      },
+      nameTextStyle: { color: MUTED, fontSize: 11 },
+      axisLabel: { color: MUTED, fontSize: 11 },
+      splitLine: { lineStyle: { color: "#f0ebe0" } },
     },
     series: [
       {
@@ -98,13 +83,8 @@ function updateChart() {
         smooth: true,
         symbol: "circle",
         symbolSize: 6,
-        itemStyle: {
-          color: "#6a9b6f",
-        },
-        lineStyle: {
-          color: "#6a9b6f",
-          width: 2,
-        },
+        itemStyle: { color: FOCUS },
+        lineStyle: { color: FOCUS, width: 2 },
         areaStyle: {
           color: {
             type: "linear",
@@ -113,61 +93,27 @@ function updateChart() {
             x2: 0,
             y2: 1,
             colorStops: [
-              { offset: 0, color: "rgba(106, 155, 111, 0.3)" },
-              { offset: 1, color: "rgba(106, 155, 111, 0.05)" },
+              { offset: 0, color: "rgba(122, 160, 125, 0.30)" },
+              { offset: 1, color: "rgba(122, 160, 125, 0.05)" },
             ],
           },
         },
       },
     ],
-  };
-
-  chart.setOption(option);
+  });
 }
 
 onMounted(() => {
-  nextTick(() => {
-    initChart();
-  });
+  nextTick(initChart);
+  resizeHandler = () => chart?.resize();
+  window.addEventListener("resize", resizeHandler);
+});
 
-  window.addEventListener("resize", () => {
-    chart?.resize();
-  });
+onBeforeUnmount(() => {
+  if (resizeHandler) window.removeEventListener("resize", resizeHandler);
+  chart?.dispose();
+  chart = null;
 });
 
 watch(() => props.data, updateChart, { deep: true });
 </script>
-
-<style scoped>
-.distribution-card {
-  background: var(--surface);
-  border-radius: var(--radius);
-  padding: 20px;
-  box-shadow: var(--shadow-xs);
-  border: 1px solid var(--border-light);
-}
-
-.card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-}
-
-.card-header h3 {
-  font-family: var(--font-display);
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text);
-}
-
-.card-hint {
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.chart-container {
-  width: 100%;
-  height: 250px;
-}
-</style>

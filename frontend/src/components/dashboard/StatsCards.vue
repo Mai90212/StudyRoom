@@ -1,36 +1,60 @@
 <template>
-  <div class="stats-cards">
-    <div class="card">
-      <div class="card-icon">📅</div>
-      <div class="card-content">
-        <span class="card-value">{{ formatMinutes(stats.today_minutes) }}</span>
-        <span class="card-label">今日专注</span>
-        <div class="progress-bar">
-          <div class="progress-fill" :style="{ width: (stats.today_progress * 100) + '%' }"></div>
+  <div class="grid gap-4 md:grid-cols-3">
+    <Card class="transition-all hover:-translate-y-0.5 hover:shadow-md">
+      <CardContent class="flex items-start gap-3.5 pt-6">
+        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-secondary text-primary">
+          <CalendarDays class="h-5 w-5" />
         </div>
-        <span class="card-hint">目标 {{ stats.today_goal }} 分钟</span>
-      </div>
-    </div>
+        <div class="flex min-w-0 flex-col gap-1">
+          <span class="font-mono text-2xl font-bold tabular-nums">
+            {{ formatMinutes(stats.today_minutes) }}
+          </span>
+          <span class="text-sm font-medium text-muted-foreground">今日专注</span>
+          <div class="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+            <div
+              class="h-full rounded-full bg-[oklch(0.624_0.090_145)] transition-all duration-500"
+              :style="{ width: Math.min(100, stats.today_progress * 100) + '%' }"
+            ></div>
+          </div>
+          <span class="text-xs text-muted-foreground">目标 {{ stats.today_goal }} 分钟</span>
+        </div>
+      </CardContent>
+    </Card>
 
-    <div class="card">
-      <div class="card-icon">📊</div>
-      <div class="card-content">
-        <span class="card-value">{{ formatMinutes(stats.week_minutes) }}</span>
-        <span class="card-label">本周专注</span>
-      </div>
-    </div>
+    <Card class="transition-all hover:-translate-y-0.5 hover:shadow-md">
+      <CardContent class="flex items-start gap-3.5 pt-6">
+        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-secondary text-primary">
+          <BarChart3 class="h-5 w-5" />
+        </div>
+        <div class="flex min-w-0 flex-col gap-1">
+          <span class="font-mono text-2xl font-bold tabular-nums">
+            {{ formatMinutes(stats.week_minutes) }}
+          </span>
+          <span class="text-sm font-medium text-muted-foreground">本周专注</span>
+        </div>
+      </CardContent>
+    </Card>
 
-    <div class="card">
-      <div class="card-icon">📈</div>
-      <div class="card-content">
-        <span class="card-value">{{ formatMinutes(stats.month_minutes) }}</span>
-        <span class="card-label">本月专注</span>
-      </div>
-    </div>
+    <Card class="transition-all hover:-translate-y-0.5 hover:shadow-md">
+      <CardContent class="flex items-start gap-3.5 pt-6">
+        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-secondary text-primary">
+          <TrendingUp class="h-5 w-5" />
+        </div>
+        <div class="flex min-w-0 flex-col gap-1">
+          <span class="font-mono text-2xl font-bold tabular-nums">
+            {{ formatMinutes(stats.month_minutes) }}
+          </span>
+          <span class="text-sm font-medium text-muted-foreground">本月专注</span>
+        </div>
+      </CardContent>
+    </Card>
   </div>
 </template>
 
 <script setup>
+import { CalendarDays, BarChart3, TrendingUp } from "@lucide/vue";
+import { Card, CardContent } from "@/components/ui/card";
+
 defineProps({
   stats: {
     type: Object,
@@ -51,79 +75,3 @@ function formatMinutes(minutes) {
   return m > 0 ? `${h}h ${m}m` : `${h}h`;
 }
 </script>
-
-<style scoped>
-.stats-cards {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-}
-
-@media (max-width: 640px) {
-  .stats-cards {
-    grid-template-columns: 1fr;
-  }
-}
-
-.card {
-  background: var(--surface);
-  border-radius: var(--radius);
-  padding: 20px;
-  box-shadow: var(--shadow-xs);
-  border: 1px solid var(--border-light);
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  transition: all 0.2s;
-}
-.card:hover {
-  box-shadow: var(--shadow-sm);
-  transform: translateY(-2px);
-}
-
-.card-icon {
-  font-size: 28px;
-  flex-shrink: 0;
-}
-
-.card-content {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0;
-}
-
-.card-value {
-  font-family: var(--font-mono);
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--text);
-}
-
-.card-label {
-  font-size: 13px;
-  color: var(--text-secondary);
-  font-weight: 500;
-}
-
-.progress-bar {
-  width: 100%;
-  height: 6px;
-  background: var(--border-light);
-  border-radius: 3px;
-  overflow: hidden;
-  margin-top: 4px;
-}
-
-.progress-fill {
-  height: 100%;
-  background: var(--focus);
-  border-radius: 3px;
-  transition: width 0.5s ease;
-}
-
-.card-hint {
-  font-size: 12px;
-  color: var(--text-muted);
-}
-</style>
