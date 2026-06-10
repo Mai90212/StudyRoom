@@ -1,0 +1,183 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* =============================================================
+ * StudyRoom Theme — Warm Library (light) + Night Library (dark)
+ * Token bridge: shadcn-vue tokens (OKLCH) + legacy CSS variables
+ * pointing to identical OKLCH values. Pre-existing components
+ * keep working until Wave 5 strips the aliases.
+ * ============================================================= */
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --font-sans: var(--font-body);
+  --font-serif: var(--font-display);
+  --font-mono: var(--font-mono);
+}
+
+:root {
+  /* --- shadcn-vue tokens (OKLCH) --- */
+  --background: oklch(0.972 0.013 80);
+  --foreground: oklch(0.295 0.018 60);
+
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.295 0.018 60);
+
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.295 0.018 60);
+
+  --primary: oklch(0.480 0.103 280);
+  --primary-foreground: oklch(1 0 0);
+
+  --secondary: oklch(0.945 0.014 80);
+  --secondary-foreground: oklch(0.295 0.018 60);
+
+  --muted: oklch(0.945 0.014 80);
+  --muted-foreground: oklch(0.604 0.018 70);
+
+  --accent: oklch(0.945 0.025 280);
+  --accent-foreground: oklch(0.295 0.018 60);
+
+  --destructive: oklch(0.598 0.106 25);
+  --destructive-foreground: oklch(1 0 0);
+
+  --border: oklch(0.916 0.014 80);
+  --input: oklch(0.916 0.014 80);
+  --ring: oklch(0.480 0.103 280 / 0.35);
+
+  --radius: 0.875rem;
+
+  /* --- legacy aliases (Wave 1–4 bridge; removed in Wave 5) --- */
+  --bg: oklch(0.972 0.013 80);
+  --surface: oklch(1 0 0);
+  --text: oklch(0.295 0.018 60);
+  --text-secondary: oklch(0.604 0.018 70);
+  --text-muted: oklch(0.604 0.018 70);
+  --border-light: oklch(0.916 0.014 80);
+
+  --accent-light: oklch(0.945 0.025 280);
+  --accent-hover: oklch(0.420 0.108 280);
+
+  /* --- app semantic colors (status: focus / away / danger) --- */
+  --focus: oklch(0.624 0.090 145);
+  --focus-soft: oklch(0.945 0.030 145);
+  --focus-glow: oklch(0.624 0.090 145 / 0.25);
+
+  --away: oklch(0.710 0.110 55);
+  --away-soft: oklch(0.955 0.024 55);
+
+  --danger: oklch(0.598 0.106 25);
+  --danger-hover: oklch(0.520 0.115 25);
+  --danger-soft: oklch(0.945 0.028 25);
+
+  /* --- elevation --- */
+  --shadow-xs: 0 1px 2px oklch(0.295 0.018 60 / 0.04);
+  --shadow-sm: 0 1px 3px oklch(0.295 0.018 60 / 0.06), 0 1px 2px oklch(0.295 0.018 60 / 0.04);
+  --shadow-md: 0 4px 12px oklch(0.295 0.018 60 / 0.08), 0 2px 4px oklch(0.295 0.018 60 / 0.04);
+  --shadow-lg: 0 10px 30px oklch(0.295 0.018 60 / 0.10), 0 4px 8px oklch(0.295 0.018 60 / 0.05);
+
+  --radius-xs: 0.375rem;
+  --radius-sm: 0.5rem;
+
+  /* --- typography --- */
+  --font-display: "Noto Serif SC", "Songti SC", "STSong", serif;
+  --font-body: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-mono: "SF Mono", "JetBrains Mono", "Cascadia Code", monospace;
+}
+
+/* =============================================================
+ * Night Library — dark mode palette (reserved, no toggle yet)
+ * ============================================================= */
+.dark {
+  --background: oklch(0.180 0.012 60);
+  --foreground: oklch(0.920 0.013 80);
+
+  --card: oklch(0.230 0.012 60);
+  --card-foreground: oklch(0.920 0.013 80);
+
+  --popover: oklch(0.230 0.012 60);
+  --popover-foreground: oklch(0.920 0.013 80);
+
+  --primary: oklch(0.625 0.110 280);
+  --primary-foreground: oklch(0.180 0.012 60);
+
+  --secondary: oklch(0.265 0.014 60);
+  --secondary-foreground: oklch(0.920 0.013 80);
+
+  --muted: oklch(0.265 0.014 60);
+  --muted-foreground: oklch(0.680 0.016 70);
+
+  --accent: oklch(0.310 0.040 280);
+  --accent-foreground: oklch(0.920 0.013 80);
+
+  --destructive: oklch(0.620 0.118 25);
+  --destructive-foreground: oklch(0.980 0.005 80);
+
+  --border: oklch(0.300 0.010 60);
+  --input: oklch(0.300 0.010 60);
+  --ring: oklch(0.625 0.110 280 / 0.45);
+
+  /* legacy aliases (dark) */
+  --bg: oklch(0.180 0.012 60);
+  --surface: oklch(0.230 0.012 60);
+  --text: oklch(0.920 0.013 80);
+  --text-secondary: oklch(0.720 0.014 70);
+  --text-muted: oklch(0.620 0.014 70);
+  --border-light: oklch(0.300 0.010 60);
+
+  --accent-light: oklch(0.310 0.040 280);
+  --accent-hover: oklch(0.690 0.115 280);
+
+  --focus: oklch(0.690 0.100 145);
+  --focus-soft: oklch(0.310 0.034 145);
+  --focus-glow: oklch(0.690 0.100 145 / 0.30);
+
+  --away: oklch(0.760 0.115 55);
+  --away-soft: oklch(0.320 0.028 55);
+
+  --danger: oklch(0.620 0.118 25);
+  --danger-hover: oklch(0.700 0.125 25);
+  --danger-soft: oklch(0.310 0.034 25);
+
+  --shadow-xs: 0 1px 2px oklch(0 0 0 / 0.30);
+  --shadow-sm: 0 1px 3px oklch(0 0 0 / 0.40), 0 1px 2px oklch(0 0 0 / 0.30);
+  --shadow-md: 0 4px 12px oklch(0 0 0 / 0.45), 0 2px 4px oklch(0 0 0 / 0.30);
+  --shadow-lg: 0 10px 30px oklch(0 0 0 / 0.55), 0 4px 8px oklch(0 0 0 / 0.35);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-body);
+  }
+}

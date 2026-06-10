@@ -30,3 +30,6 @@ settings.local.json
 
 # OMO agent runtime state
 .omo/
+
+# Playwright MCP debug artifacts
+.playwright-mcp/
