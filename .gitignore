@@ -27,3 +27,6 @@ backend/uv.lock
 # Logs
 *.log
 settings.local.json
+
+# OMO agent runtime state
+.omo/
