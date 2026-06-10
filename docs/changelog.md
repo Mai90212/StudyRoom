@@ -5,6 +5,43 @@
 
 ---
 
+## [Unreleased] — 2026-06-10
+
+### Added (Wave 0-5: 前端 shadcn-vue 重构)
+- **shadcn-vue 集成**：Tailwind v4 + Reka UI + 15 个原子组件（button/card/input/label/tabs/dialog/alert-dialog/dropdown-menu/badge/avatar/separator/scroll-area/sonner→自写/tooltip/skeleton）
+- **OKLCH design tokens**：78 个 OKLCH 颜色值，shadcn-vue 标准 token + 应用专属 sage/amber/danger 语义色
+- **暖奶油 + 学术靛蓝**主题保留，UI 视觉零回归（token bridge 让旧组件无缝过渡）
+- **Night Library 暗色调**预留（CSS variables 就绪，未挂切换 UI）
+- **lucide-vue icons**：全面替换 emoji，按页面分类列表见 [design-spec.md § 7](docs/design-spec.md#7-图标系统)
+- **自写 toast 系统**：`composables/useToast.js` + `components/ui/toaster/Toaster.vue`（替代 vue-sonner，规避 Vite ESM 双实例问题），4 色调（sage/rose/indigo/amber）+ a11y region
+
+### Changed (重构 6 个核心文件)
+- **LoginView.vue** (351→220 行)：Card+Tabs+Form 重写，setTimeout 错误泄漏 → toast.error 自动 dismiss
+- **LobbyView.vue** (474→240 行)：Card 卡片 + DropdownMenu + Skeleton + Badge + 自定义 stepper
+- **Room.vue** (1080→700 行)：UI 全换 shadcn-vue（保持单文件，**逻辑零改动**），AlertDialog 替代 3 处 `confirm()`，nickname 从 leaderboard 反查
+- **DashboardView.vue** (385→220 行)：Tabs + Dialog（设置弹窗带焦点陷阱）
+- **3 个 dashboard 子组件**：StatsCards/StreakBadge/FriendStatus/Leaderboard 全部 Card 化
+- **3 个 ECharts 组件**：Heatmap/DistributionChart/ScoreGauge — ECharts 调色板对齐 OKLCH（HEX 等价）
+
+### Fixed (resize 监听 + setTimeout 泄漏)
+- **3 个 ECharts 组件 resize 监听泄漏**：`window.addEventListener('resize', ...)` 现在保存 handler ref，`onBeforeUnmount` 中 removeEventListener + dispose ECharts instance
+- **LobbyView setTimeout(4000) 泄漏**：错误提示改为 toast（自动 timeout 由 useToast 管理）
+- **MCP server 配置错误**：项目 root + frontend 的 opencode.json 中 `shadcn@latest mcp` (React) → `shadcn-vue@latest mcp`
+
+### Infrastructure
+- **vite.config.js**：+ `@tailwindcss/vite` plugin + `@` → `./src` alias + `dedupe: ['vue', 'reka-ui']`
+- **jsconfig.json**：shadcn-vue CLI 要求（非 TS Vue 项目需 jsconfig 解析 alias）
+- **components.json**：shadcn-vue 配置（style: new-york, baseColor: neutral, iconLibrary: lucide）
+- **依赖新增**：tailwindcss@4 + @tailwindcss/vite + tw-animate-css (dev), clsx + tailwind-merge + class-variance-authority + @lucide/vue + reka-ui + @vueuse/core (runtime)
+- **依赖删除**：shadcn@4.10 (React CLI 误装), vue-sonner (双实例问题), lucide-vue-next (统一到 @lucide/vue)
+
+### Verification
+- 5 个 wave commit (M1-M5) + Wave 0 P0 修复 (cf1a285)，git history clean
+- Playwright @ vite preview :4173 端到端验证：注册→登录→创建房间→Room WebSocket+timer+visibilitychange+overlay+chat→dashboard tabs 全部通过
+- `npm run build` exit 0，CSS bundle 49→74 KB（shadcn 样式注入），JS bundle 706→908 KB（shadcn-vue + reka-ui + lucide tree-shake）
+
+---
+
 ## [Unreleased] — 2026-06-04
 
 ### Added

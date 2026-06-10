@@ -1,7 +1,7 @@
 # PROJECT_STATE.md — 在线自习室项目单点真相
 
-> 最后更新：2026-06-04
-> 当前阶段：dashboard 数据大盘模块已完成，下一步 v2 功能
+> 最后更新：2026-06-10
+> 当前阶段：前端已迁移至 shadcn-vue + Tailwind v4，下一步 v2 功能（番茄钟）或上线部署
 
 ---
 
@@ -193,6 +193,17 @@ backend/studyroom/
 
 ### SMTP 邮箱配置
 - [x] QQ 邮箱 SMTP 已配置（验证码正式发送到邮箱）
+
+### 前端 shadcn-vue 重构（2026-06-10, 5 个 wave）
+- [x] **Wave 1 基础设施**：Tailwind v4 + shadcn-vue init + OKLCH token bridge + MCP 切换 (`shadcn@latest mcp` → `shadcn-vue@latest mcp`)
+- [x] **Wave 2 组件安装**：15 个 shadcn-vue 原子组件 (button/card/input/label/tabs/dialog/alert-dialog/dropdown-menu/badge/avatar/separator/scroll-area/sonner/tooltip/skeleton)
+- [x] **Wave 3 LoginView**：Card+Tabs+Input+Button+自写 toast；修 setTimeout 错误泄漏
+- [x] **Wave 4a LobbyView**：Card 卡片 + DropdownMenu + Skeleton + Badge + 自定义 stepper；修 4s setTimeout 泄漏
+- [x] **Wave 4b Room.vue**：UI 全换 shadcn-vue（保持单文件，逻辑零改动）+ AlertDialog 替代 3 处 confirm() + nickname 反查
+- [x] **Wave 4c Dashboard**：DashboardView + 3 ECharts + 4 子组件全部 Card 化；**修 3 个 resize 监听泄漏 + 1 个 LobbyView setTimeout 泄漏**
+- [x] **Wave 5 文档同步**：design-spec.md v2（OKLCH/lucide/Theming/a11y 章节）+ changelog
+- [x] **自写 toast 系统**：composables/useToast.js + components/ui/toaster（替代 vue-sonner ESM 双实例问题）
+- [x] **lucide-vue icons**：全面替换 emoji（零 emoji）
 
 ### dashboard 数据大盘模块
 - [x] `dashboard/models.py` — FocusHourlyRecord, FocusSession, UserFollow, UserSettings 表
