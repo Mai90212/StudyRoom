@@ -40,8 +40,8 @@
 }
 
 :root {
-  /* --- shadcn-vue tokens (OKLCH) --- */
-  --background: oklch(0.972 0.013 80);
+  /* --- 暖调书房主题 — shadcn-vue tokens (OKLCH) --- */
+  --background: oklch(0.973 0.014 83);
   --foreground: oklch(0.295 0.018 60);
 
   --card: oklch(1 0 0);
@@ -50,43 +50,43 @@
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.295 0.018 60);
 
-  /* Warm caramel primary — hue 50 同温区，配暖奶油底无违和感
-   * 替换原 oklch(0.480 0.103 280) 学术靛蓝（hue 280 互补色撞色） */
-  --primary: oklch(0.475 0.095 55);
+  /* 学术靛蓝 — 原设计规范的主色调 #5b5d9c */
+  --primary: oklch(0.480 0.103 280);
   --primary-foreground: oklch(0.985 0.008 80);
 
-  --secondary: oklch(0.945 0.018 70);
-  --secondary-foreground: oklch(0.295 0.018 60);
+  --secondary: oklch(0.910 0.028 280);
+  --secondary-foreground: oklch(0.480 0.103 280);
 
-  --muted: oklch(0.945 0.014 75);
+  --muted: oklch(0.895 0.022 70);
   --muted-foreground: oklch(0.555 0.025 65);
 
-  --accent: oklch(0.930 0.032 60);
-  --accent-foreground: oklch(0.350 0.060 50);
+  --accent: oklch(0.910 0.028 280);
+  --accent-foreground: oklch(0.350 0.080 280);
 
-  /* 危险色：朱砂红（vermillion），暖系不带冷玫瑰感 */
-  --destructive: oklch(0.560 0.140 28);
+  /* 柔玫瑰 — 原 #b57070 */
+  --destructive: oklch(0.580 0.115 12);
   --destructive-foreground: oklch(0.985 0.008 80);
 
   --border: oklch(0.895 0.022 70);
   --input: oklch(0.895 0.022 70);
-  --ring: oklch(0.475 0.095 55 / 0.35);
+  --ring: oklch(0.480 0.103 280 / 0.35);
 
   --radius: 0.875rem;
 
-  /* 状态语义色：focus 改为深苔藓绿（hue 135 偏黄，与暖底协调），away 暖琥珀保留 */
-  --focus: oklch(0.580 0.085 135);
-  --focus-soft: oklch(0.945 0.032 135);
-  --focus-glow: oklch(0.580 0.085 135 / 0.28);
+  /* 鼠尾草绿 — 原 #6a9b6f */
+  --focus: oklch(0.620 0.100 145);
+  --focus-soft: oklch(0.945 0.032 145);
+  --focus-glow: oklch(0.620 0.100 145 / 0.28);
 
+  /* 暖琥珀 — 摸鱼色 */
   --away: oklch(0.700 0.115 60);
   --away-soft: oklch(0.955 0.030 60);
 
   /* --- elevation --- */
   --shadow-xs: 0 1px 2px oklch(0.295 0.018 60 / 0.04);
   --shadow-sm: 0 1px 3px oklch(0.295 0.018 60 / 0.06), 0 1px 2px oklch(0.295 0.018 60 / 0.04);
-  --shadow-md: 0 4px 12px oklch(0.295 0.018 60 / 0.08), 0 2px 4px oklch(0.295 0.018 60 / 0.04);
-  --shadow-lg: 0 10px 30px oklch(0.295 0.018 60 / 0.10), 0 4px 8px oklch(0.295 0.018 60 / 0.05);
+  --shadow-md: 0 4px 16px oklch(0.295 0.018 60 / 0.07);
+  --shadow-lg: 0 12px 40px oklch(0.295 0.018 60 / 0.10);
 
   /* --- typography --- */
   --font-display: "Noto Serif SC", "Songti SC", "STSong", serif;
@@ -107,28 +107,28 @@
   --popover: oklch(0.235 0.016 55);
   --popover-foreground: oklch(0.925 0.018 75);
 
-  --primary: oklch(0.700 0.115 60);
+  --primary: oklch(0.700 0.103 280);
   --primary-foreground: oklch(0.185 0.014 55);
 
-  --secondary: oklch(0.270 0.018 60);
+  --secondary: oklch(0.270 0.040 280);
   --secondary-foreground: oklch(0.925 0.018 75);
 
   --muted: oklch(0.270 0.018 60);
   --muted-foreground: oklch(0.700 0.020 70);
 
-  --accent: oklch(0.315 0.040 60);
+  --accent: oklch(0.315 0.060 280);
   --accent-foreground: oklch(0.925 0.018 75);
 
-  --destructive: oklch(0.640 0.140 28);
+  --destructive: oklch(0.640 0.115 12);
   --destructive-foreground: oklch(0.985 0.008 80);
 
   --border: oklch(0.305 0.014 60);
   --input: oklch(0.305 0.014 60);
-  --ring: oklch(0.700 0.115 60 / 0.45);
+  --ring: oklch(0.700 0.103 280 / 0.45);
 
-  --focus: oklch(0.680 0.090 135);
-  --focus-soft: oklch(0.310 0.030 135);
-  --focus-glow: oklch(0.680 0.090 135 / 0.32);
+  --focus: oklch(0.700 0.100 145);
+  --focus-soft: oklch(0.310 0.030 145);
+  --focus-glow: oklch(0.700 0.100 145 / 0.32);
 
   --away: oklch(0.760 0.118 60);
   --away-soft: oklch(0.320 0.030 60);

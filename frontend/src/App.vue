@@ -9,7 +9,7 @@ import { Toaster } from "@/components/ui/toaster";
 
 <style>
 @keyframes breathe {
-  0%, 100% { box-shadow: 0 0 0 0 oklch(0.580 0.085 135 / 0.40); }
-  50%      { box-shadow: 0 0 0 8px oklch(0.580 0.085 135 / 0); }
+  0%, 100% { box-shadow: 0 0 0 0 var(--focus-glow); }
+  50%      { box-shadow: 0 0 0 8px oklch(0.620 0.100 145 / 0); }
 }
 </style>
