@@ -44,25 +44,37 @@
       <!-- 顶部 toolbar -->
       <header class="z-10 flex items-center justify-between border-b border-border bg-card px-5 py-3 shadow-sm">
         <div class="flex min-w-[140px] items-center gap-2.5">
-          <AlertDialog>
-            <AlertDialogTrigger as-child>
-              <Button variant="outline" size="icon" class="h-9 w-9" title="退出房间">
-                <ArrowLeft class="h-4 w-4" />
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>确定退出自习室？</AlertDialogTitle>
-                <AlertDialogDescription>
-                  退出后你的专注数据会被保存，下次再来继续。
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>取消</AlertDialogCancel>
-                <AlertDialogAction @click="handleLeave">保存</AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+          <Button variant="outline" size="icon" class="h-9 w-9" title="退出房间" @click="showLeaveDialog = true">
+            <ArrowLeft class="h-4 w-4" />
+          </Button>
+
+          <!-- 退出确认卡片 -->
+          <Transition
+            enter-active-class="transition duration-200"
+            enter-from-class="opacity-0"
+            leave-active-class="transition duration-150"
+            leave-to-class="opacity-0"
+          >
+            <div
+              v-if="showLeaveDialog"
+              class="fixed inset-0 z-[9998] flex items-center justify-center bg-black/40 backdrop-blur-sm"
+              @click.self="showLeaveDialog = false"
+            >
+              <Card class="w-[360px] animate-in slide-in-from-bottom-4 duration-200">
+                <CardHeader>
+                  <CardTitle>确定退出自习室？</CardTitle>
+                  <CardDescription>
+                    退出后你的专注数据会被保存，下次再来继续。
+                  </CardDescription>
+                </CardHeader>
+                <CardFooter class="flex justify-end gap-3">
+                  <Button variant="outline" @click="showLeaveDialog = false">取消</Button>
+                  <Button @click="handleLeave">保存</Button>
+                </CardFooter>
+              </Card>
+            </div>
+          </Transition>
+
           <span class="font-serif text-base font-semibold text-foreground">
             {{ roomInfo?.name || "自习室 #" + roomId }}
           </span>
@@ -87,30 +99,43 @@
 
         <!-- 右：邀请码 + 删除（房主） -->
         <div class="flex min-w-[140px] items-center justify-end gap-2.5">
-          <AlertDialog v-if="isOwner">
-            <AlertDialogTrigger as-child>
-              <Button variant="outline" size="icon" class="h-9 w-9 hover:border-destructive hover:text-destructive" title="删除房间">
-                <Trash2 class="h-4 w-4" />
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>删除这个自习室？</AlertDialogTitle>
-                <AlertDialogDescription>
-                  所有成员将被移出。此操作不可撤销。
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>取消</AlertDialogCancel>
-                <AlertDialogAction
-                  class="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                  @click="handleDeleteRoom"
-                >
-                  删除
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+          <Button
+            v-if="isOwner"
+            variant="outline"
+            size="icon"
+            class="h-9 w-9 hover:border-destructive hover:text-destructive"
+            title="删除房间"
+            @click="showDeleteDialog = true"
+          >
+            <Trash2 class="h-4 w-4" />
+          </Button>
+
+          <!-- 删除确认卡片 -->
+          <Transition
+            enter-active-class="transition duration-200"
+            enter-from-class="opacity-0"
+            leave-active-class="transition duration-150"
+            leave-to-class="opacity-0"
+          >
+            <div
+              v-if="showDeleteDialog"
+              class="fixed inset-0 z-[9998] flex items-center justify-center bg-black/40 backdrop-blur-sm"
+              @click.self="showDeleteDialog = false"
+            >
+              <Card class="w-[360px] animate-in slide-in-from-bottom-4 duration-200">
+                <CardHeader>
+                  <CardTitle>删除这个自习室？</CardTitle>
+                  <CardDescription>
+                    所有成员将被移出。此操作不可撤销。
+                  </CardDescription>
+                </CardHeader>
+                <CardFooter class="flex justify-end gap-3">
+                  <Button variant="outline" @click="showDeleteDialog = false">取消</Button>
+                  <Button variant="destructive" @click="handleDeleteRoom">删除</Button>
+                </CardFooter>
+              </Card>
+            </div>
+          </Transition>
 
           <div class="relative">
             <Button
@@ -202,37 +227,45 @@
                       {{ m.status === "focusing" ? "专注中" : "摸鱼中" }}
                     </span>
                   </div>
-                  <AlertDialog v-if="isOwner && m.user_id !== userId">
-                    <AlertDialogTrigger as-child>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        class="h-7 w-7 shrink-0 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive"
-                        title="踢出"
-                      >
-                        <UserX class="h-3.5 w-3.5" />
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>踢出该成员？</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          {{ displayName(m) }} 将立即被移出自习室。
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>取消</AlertDialogCancel>
-                        <AlertDialogAction
-                          class="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                          @click="performKick(m.user_id)"
-                        >
-                          确认踢出
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                  <Button
+                    v-if="isOwner && m.user_id !== userId"
+                    variant="ghost"
+                    size="icon"
+                    class="h-7 w-7 shrink-0 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive"
+                    title="踢出"
+                    @click="kickingUserId = m.user_id"
+                  >
+                    <UserX class="h-3.5 w-3.5" />
+                  </Button>
                 </div>
               </TransitionGroup>
+
+              <!-- 踢出确认卡片 -->
+              <Transition
+                enter-active-class="transition duration-200"
+                enter-from-class="opacity-0"
+                leave-active-class="transition duration-150"
+                leave-to-class="opacity-0"
+              >
+                <div
+                  v-if="kickingUserId"
+                  class="fixed inset-0 z-[9998] flex items-center justify-center bg-black/40 backdrop-blur-sm"
+                  @click.self="kickingUserId = null"
+                >
+                  <Card class="w-[360px] animate-in slide-in-from-bottom-4 duration-200">
+                    <CardHeader>
+                      <CardTitle>踢出该成员？</CardTitle>
+                      <CardDescription>
+                        {{ displayNameById(kickingUserId) }} 将立即被移出自习室。
+                      </CardDescription>
+                    </CardHeader>
+                    <CardFooter class="flex justify-end gap-3">
+                      <Button variant="outline" @click="kickingUserId = null">取消</Button>
+                      <Button variant="destructive" @click="performKick(kickingUserId)">确认踢出</Button>
+                    </CardFooter>
+                  </Card>
+                </div>
+              </Transition>
 
               <div
                 v-if="members.length === 0"
@@ -416,21 +449,11 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { toast } from "@/components/ui/toaster";
 
 import { wsUrl, api } from "@/utils/api.js";
 import { cn } from "@/lib/utils.js";
+import router from "@/router/index.js";
 
 const props = defineProps({
   roomId: { type: Number, required: true },
@@ -445,6 +468,9 @@ const emit = defineEmits(["leave"]);
 const localStatus = ref("focusing");
 const copied = ref(false);
 const showOverlay = ref(false);
+const showLeaveDialog = ref(false);
+const showDeleteDialog = ref(false);
+const kickingUserId = ref(null);
 const focusSeconds = ref(0);
 const members = ref([]);
 const chatMessages = ref([]);
@@ -761,6 +787,7 @@ function handleLeave() {
   reportHourlyFocus();
   reportSession();
   setTimeout(() => emit("leave"), 150);
+  router.push("/lobby")
 }
 
 async function handleDeleteRoom() {
