@@ -59,7 +59,7 @@
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>取消</AlertDialogCancel>
-                <AlertDialogAction @click="handleLeave">退出</AlertDialogAction>
+                <AlertDialogAction @click="handleLeave">保存</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>

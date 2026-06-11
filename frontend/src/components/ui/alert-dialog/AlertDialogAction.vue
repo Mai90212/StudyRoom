@@ -19,7 +19,7 @@ const delegatedProps = reactiveOmit(props, "class");
 
 <template>
   <AlertDialogAction
-    v-bind="delegatedProps"
+    v-bind="{ ...delegatedProps, ...$attrs }"
     :class="cn(buttonVariants(), props.class)"
   >
     <slot />
