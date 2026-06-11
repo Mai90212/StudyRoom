@@ -115,12 +115,12 @@ class ConnectionManager:
         if conn is None:
             return
 
-        now = time.time()
-        if now - conn.last_status_broadcast < self.STATUS_COOLDOWN:
+        conn.status = status
+
+        if time.time() - conn.last_status_broadcast < self.STATUS_COOLDOWN:
             return
 
-        conn.status = status
-        conn.last_status_broadcast = now
+        conn.last_status_broadcast = time.time()
         await self._broadcast(room_id, {
             "type": "user_status",
             "user_id": user_id,

@@ -6,9 +6,13 @@
         专注排行榜
       </CardTitle>
       <Tabs :model-value="period" @update:model-value="(v) => emit('change-period', v)">
-        <TabsList class="h-8">
-          <TabsTrigger value="weekly" class="text-xs">周榜</TabsTrigger>
-          <TabsTrigger value="monthly" class="text-xs">月榜</TabsTrigger>
+        <TabsList class="h-8 relative">
+          <div
+            class="absolute inset-y-0 left-0 bg-background shadow-sm rounded-md transition-[width,transform] duration-300 ease-in-out pointer-events-none"
+            :style="period === 'weekly' ? { width: '50%', transform: 'translateX(0%)' } : { width: '50%', transform: 'translateX(100%)' }"
+          />
+          <TabsTrigger value="weekly" class="text-xs relative z-10">周榜</TabsTrigger>
+          <TabsTrigger value="monthly" class="text-xs relative z-10">月榜</TabsTrigger>
         </TabsList>
       </Tabs>
     </CardHeader>

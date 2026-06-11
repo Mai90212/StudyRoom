@@ -802,6 +802,7 @@ async function handleDeleteRoom() {
 
 async function performKick(targetUserId) {
   try {
+    kickingUserId.value = null;
     await api(`/rooms/${props.roomId}/kick/${targetUserId}`, { method: "POST" });
     toast.success(`已踢出 ${displayNameById(targetUserId)}`);
   } catch (e) {

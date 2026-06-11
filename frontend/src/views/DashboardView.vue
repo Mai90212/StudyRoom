@@ -50,7 +50,11 @@
 
       <!-- Tabs -->
       <Tabs v-model="activeTab" class="w-full">
-        <TabsList class="grid w-full grid-cols-3">
+        <TabsList class="grid w-full grid-cols-3 relative">
+          <div
+            class="absolute left-0 inset-y-0 bg-background shadow-sm rounded-md transition-[width,transform] duration-300 ease-in-out pointer-events-none"
+            :style="indicatorStyle"
+          />
           <TabsTrigger value="stats">数据大盘</TabsTrigger>
           <TabsTrigger value="friends">好友状态</TabsTrigger>
           <TabsTrigger value="leaderboard">排行榜</TabsTrigger>
@@ -81,7 +85,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from "vue";
+import { ref, computed, onMounted, watch, nextTick } from "vue";
 import { useRouter } from "vue-router";
 import { ArrowLeft, Settings } from "@lucide/vue";
 
@@ -114,6 +118,19 @@ const router = useRouter();
 
 const activeTab = ref("stats");
 const showSettings = ref(false);
+const tabsListRef = ref(null);
+
+const tabOrder = ["stats", "friends", "leaderboard"];
+
+const indicatorStyle = computed(() => {
+  const idx = tabOrder.indexOf(activeTab.value);
+  if (idx < 0) return { width: "0px", transform: "translateX(0px)" };
+  const count = tabOrder.length;
+  return {
+    width: `${100 / count}%`,
+    transform: `translateX(${idx * 100}%)`,
+  };
+});
 
 const stats = ref({
   today_minutes: 0,

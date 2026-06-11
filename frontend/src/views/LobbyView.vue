@@ -20,7 +20,7 @@
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" class="w-44">
-          <DropdownMenuLabel>{{ user?.email }}</DropdownMenuLabel>
+          <DropdownMenuLabel>{{ user.nickname }}</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem @click="goToDashboard">
             <BarChart3 class="mr-2 h-4 w-4" />
@@ -159,7 +159,7 @@
               v-model="joinCode"
               placeholder="输入 6 位邀请码"
               maxlength="6"
-              class="text-center font-mono text-xl font-semibold uppercase tracking-[0.4em]"
+              class="text-center font-mono text-xl font-semibold tracking-[0.4em]"
               @keyup.enter="handleJoin"
               @input="onCodeInput"
             />
@@ -218,7 +218,7 @@ const avatarLetter = computed(() => {
 });
 
 function onCodeInput() {
-  joinCode.value = joinCode.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+  joinCode.value = joinCode.value.replace(/[^A-Za-z0-9]/g, "");
 }
 
 async function fetchMyRooms() {
