@@ -32,8 +32,8 @@ const chartRef = ref(null);
 let chart = null;
 let resizeHandler = null;
 
-// Sage-green focus token (OKLCH(0.624 0.090 145) ≈ #7aa07d)
-const FOCUS = "#7aa07d";
+// Sage focus token: oklch(0.580 0.085 135) ≈ #648652
+const FOCUS = "#648652";
 const MUTED = "#928879";
 const BORDER = "#e6e0d3";
 

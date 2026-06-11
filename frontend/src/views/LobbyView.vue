@@ -58,13 +58,13 @@
             <span
               :class="cn(
                 'flex items-center gap-1 text-xs',
-                room.online_count > 0 ? 'text-[oklch(0.624_0.090_145)]' : 'text-muted-foreground'
+                room.online_count > 0 ? 'text-[oklch(0.580_0.085_135)]' : 'text-muted-foreground'
               )"
             >
               <span
                 :class="cn(
                   'h-1.5 w-1.5 rounded-full',
-                  room.online_count > 0 ? 'bg-[oklch(0.624_0.090_145)] animate-pulse' : 'bg-muted-foreground/50'
+                  room.online_count > 0 ? 'bg-[oklch(0.580_0.085_135)] animate-pulse' : 'bg-muted-foreground/50'
                 )"
               ></span>
               {{ room.online_count }} 在线

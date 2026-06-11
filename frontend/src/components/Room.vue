@@ -13,7 +13,7 @@
       >
         <Card class="max-w-md w-full animate-in slide-in-from-bottom-4 duration-400">
           <CardHeader class="text-center">
-            <div class="mx-auto mb-2 flex h-14 w-14 items-center justify-center rounded-full bg-[oklch(0.955_0.024_55)] text-[oklch(0.710_0.110_55)]">
+            <div class="mx-auto mb-2 flex h-14 w-14 items-center justify-center rounded-full bg-[oklch(0.955_0.030_60)] text-[oklch(0.700_0.115_60)]">
               <Hourglass class="h-7 w-7" />
             </div>
             <CardTitle class="font-serif text-xl">你刚才离开了页面</CardTitle>
@@ -22,13 +22,13 @@
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <p class="text-center text-sm font-semibold text-[oklch(0.710_0.110_55)]">
+            <p class="text-center text-sm font-semibold text-[oklch(0.700_0.115_60)]">
               点击下方按钮恢复专注状态
             </p>
           </CardContent>
           <CardFooter>
             <Button
-              class="w-full bg-[oklch(0.624_0.090_145)] text-white hover:bg-[oklch(0.560_0.090_145)]"
+              class="w-full bg-[oklch(0.580_0.085_135)] text-white hover:bg-[oklch(0.500_0.085_135)]"
               size="lg"
               @click="confirmReturn"
             >
@@ -75,8 +75,8 @@
               :class="cn(
                 'h-2.5 w-2.5 rounded-full transition-all duration-500',
                 localStatus === 'focusing'
-                  ? 'bg-[oklch(0.624_0.090_145)] animate-pulse'
-                  : 'bg-[oklch(0.710_0.110_55)] opacity-60'
+                  ? 'bg-[oklch(0.580_0.085_135)] animate-pulse'
+                  : 'bg-[oklch(0.700_0.115_60)] opacity-60'
               )"
             ></span>
             <span class="font-mono text-2xl font-bold tracking-wider tabular-nums">
@@ -130,7 +130,7 @@
             >
               <Badge
                 v-if="copied"
-                class="absolute -bottom-7 left-1/2 -translate-x-1/2 bg-[oklch(0.624_0.090_145)] text-white hover:bg-[oklch(0.624_0.090_145)]"
+                class="absolute -bottom-7 left-1/2 -translate-x-1/2 bg-[oklch(0.580_0.085_135)] text-white hover:bg-[oklch(0.580_0.085_135)]"
               >
                 已复制
               </Badge>
@@ -171,8 +171,8 @@
                     :class="cn(
                       'h-9 w-9 ring-[3px]',
                       m.status === 'focusing'
-                        ? 'bg-[oklch(0.945_0.030_145)] ring-[oklch(0.624_0.090_145/0.20)]'
-                        : 'bg-[oklch(0.955_0.024_55)] ring-[oklch(0.710_0.110_55/0.20)]'
+                        ? 'bg-[oklch(0.945_0.032_135)] ring-[oklch(0.580_0.085_135/0.20)]'
+                        : 'bg-[oklch(0.955_0.030_60)] ring-[oklch(0.700_0.115_60/0.20)]'
                     )"
                   >
                     <AvatarFallback class="bg-transparent text-xs font-bold text-foreground/70">
@@ -185,7 +185,7 @@
                       <Badge v-if="m.user_id === userId" variant="default" class="h-4 px-1.5 text-[10px]">我</Badge>
                       <Badge
                         v-if="m.user_id === roomOwnerId"
-                        class="h-4 bg-[oklch(0.955_0.024_55)] px-1.5 text-[10px] text-[oklch(0.710_0.110_55)] hover:bg-[oklch(0.955_0.024_55)]"
+                        class="h-4 bg-[oklch(0.955_0.030_60)] px-1.5 text-[10px] text-[oklch(0.700_0.115_60)] hover:bg-[oklch(0.955_0.030_60)]"
                       >
                         <Crown class="mr-0.5 h-2.5 w-2.5" />
                         房主
@@ -195,8 +195,8 @@
                       :class="cn(
                         'text-xs font-medium',
                         m.status === 'focusing'
-                          ? 'text-[oklch(0.624_0.090_145)]'
-                          : 'text-[oklch(0.710_0.110_55)]'
+                          ? 'text-[oklch(0.580_0.085_135)]'
+                          : 'text-[oklch(0.700_0.115_60)]'
                       )"
                     >
                       {{ m.status === "focusing" ? "专注中" : "摸鱼中" }}
@@ -271,9 +271,9 @@
                 <span
                   :class="cn(
                     'w-5 text-center text-xs font-bold',
-                    index === 0 && 'text-[oklch(0.710_0.110_55)]',
+                    index === 0 && 'text-[oklch(0.700_0.115_60)]',
                     index === 1 && 'text-muted-foreground',
-                    index === 2 && 'text-[oklch(0.598_0.106_25)]',
+                    index === 2 && 'text-[oklch(0.560_0.140_28)]',
                     index >= 3 && 'text-primary'
                   )"
                 >
@@ -282,7 +282,7 @@
                 <span class="flex-1 truncate text-sm">
                   {{ item.nickname || "用户 #" + item.user_id }}
                 </span>
-                <span class="font-mono text-xs font-semibold text-[oklch(0.624_0.090_145)]">
+                <span class="font-mono text-xs font-semibold text-[oklch(0.580_0.085_135)]">
                   {{ item.total_minutes }}m
                 </span>
                 <Button
@@ -290,7 +290,7 @@
                   size="sm"
                   variant="outline"
                   :class="cn(
-                    'h-6 rounded-full border-[oklch(0.624_0.090_145)] px-3 text-xs text-[oklch(0.624_0.090_145)] hover:bg-[oklch(0.624_0.090_145)] hover:text-white',
+                    'h-6 rounded-full border-[oklch(0.580_0.085_135)] px-3 text-xs text-[oklch(0.580_0.085_135)] hover:bg-[oklch(0.580_0.085_135)] hover:text-white',
                     animatingFollowIds.has(item.user_id) && 'pointer-events-none scale-50 opacity-0'
                   )"
                   :disabled="animatingFollowIds.has(item.user_id)"
@@ -383,8 +383,8 @@
           :class="cn(
             'h-2 w-2 rounded-full transition-all duration-500',
             localStatus === 'focusing'
-              ? 'bg-[oklch(0.624_0.090_145)] shadow-[0_0_6px_oklch(0.624_0.090_145/0.5)] animate-pulse'
-              : 'bg-[oklch(0.710_0.110_55)] shadow-[0_0_6px_oklch(0.710_0.110_55/0.4)]'
+              ? 'bg-[oklch(0.580_0.085_135)] shadow-[0_0_6px_oklch(0.580_0.085_135/0.5)] animate-pulse'
+              : 'bg-[oklch(0.700_0.115_60)] shadow-[0_0_6px_oklch(0.700_0.115_60/0.4)]'
           )"
         ></span>
         <span class="text-sm font-medium text-muted-foreground">{{ statusText }}</span>

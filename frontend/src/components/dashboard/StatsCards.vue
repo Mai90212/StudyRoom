@@ -12,7 +12,7 @@
           <span class="text-sm font-medium text-muted-foreground">今日专注</span>
           <div class="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">
             <div
-              class="h-full rounded-full bg-[oklch(0.624_0.090_145)] transition-all duration-500"
+              class="h-full rounded-full bg-[oklch(0.580_0.085_135)] transition-all duration-500"
               :style="{ width: Math.min(100, stats.today_progress * 100) + '%' }"
             ></div>
           </div>

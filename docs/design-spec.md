@@ -2,7 +2,7 @@
 
 > 设计主题：**暖调书房**（Warm Study）
 > 实现：shadcn-vue (Reka UI) + Tailwind v4 + OKLCH tokens
-> 更新：2026-06-10（v2 — shadcn-vue 重构）
+> 更新：2026-06-11（v2.1 — 全暖调色系统，移除冷靛蓝）
 
 ---
 
@@ -11,9 +11,21 @@
 柔和、温暖、专注的学术风格。灵感来自深夜图书馆的暖光、纸质感、木色调。避免冰冷科技感，营造让人平静专注的氛围。
 
 - **核心词**：温暖 / 学者气 / 克制 / 质感
-- **差异化**：淡奶油基底 + 深靛蓝学术点缀 + 鼠尾草绿 + 暖琥珀（专注/摸鱼状态色）
+- **差异化**：淡奶油基底 + **焦糖棕**学术点缀 + **苔藓绿**（专注）+ **暖琥珀**（摸鱼）
 - **字体策略**：衬线标题（学术感）+ 无衬线正文（可读性）+ 等宽数字（计时器/邀请码）
 - **实现栈**：shadcn-vue (Reka UI 无头组件) + Tailwind v4 (utility-first) + OKLCH 颜色空间
+
+### 1.1 色相约束（v2.1 关键决策）
+
+所有颜色必须落在 **hue 30°–145°** 暖色弧线内。**严禁使用 hue 200°–320°（冷蓝→紫蓝→紫红）**。
+
+| 色相区间 | 用途 | 示例 token |
+|---------|------|-----------|
+| 30°–55°  | 朱砂红、焦糖棕、琥珀 | `--destructive`、`--primary`、`--away` |
+| 60°–90°  | 暖奶油、米色、卡其 | `--background`、`--secondary`、`--muted` |
+| 130°–145°| 苔藓绿、橄榄、墨绿 | `--focus` |
+
+> v2 → v2.1 变更原因：旧 `--primary: oklch(0.480 0.103 280)`（学术靛蓝, hue 280）与暖奶油底（hue 80）色环对角，视觉冲撞，破坏"书房"沉浸感。v2.1 全部替换为同温区配色。
 
 ---
 
@@ -34,28 +46,28 @@
   --popover:           oklch(1 0 0);
   --popover-foreground: oklch(0.295 0.018 60);
 
-  /* 主题色 — 学术靛蓝 */
-  --primary:           oklch(0.480 0.103 280);
-  --primary-foreground: oklch(1 0 0);
+  /* 主题色 — 焦糖棕（warm caramel, hue 55） */
+  --primary:           oklch(0.475 0.095 55);
+  --primary-foreground: oklch(0.985 0.008 80);
 
   /* 次级 */
-  --secondary:         oklch(0.945 0.014 80);
+  --secondary:         oklch(0.945 0.018 70);
   --secondary-foreground: oklch(0.295 0.018 60);
 
-  --muted:             oklch(0.945 0.014 80);
-  --muted-foreground:  oklch(0.604 0.018 70);
+  --muted:             oklch(0.945 0.014 75);
+  --muted-foreground:  oklch(0.555 0.025 65);
 
-  --accent:            oklch(0.945 0.025 280); /* 浅靛蓝 hover */
-  --accent-foreground: oklch(0.295 0.018 60);
+  --accent:            oklch(0.930 0.032 60);  /* 浅焦糖 hover */
+  --accent-foreground: oklch(0.350 0.060 50);
 
-  /* 危险 */
-  --destructive:       oklch(0.598 0.106 25);  /* 柔玫瑰红 */
-  --destructive-foreground: oklch(1 0 0);
+  /* 危险 — 朱砂红（vermillion, hue 28，暖系不带冷玫瑰感） */
+  --destructive:       oklch(0.560 0.140 28);
+  --destructive-foreground: oklch(0.985 0.008 80);
 
   /* 边界 */
-  --border:            oklch(0.916 0.014 80);
-  --input:             oklch(0.916 0.014 80);
-  --ring:              oklch(0.480 0.103 280 / 0.35);
+  --border:            oklch(0.895 0.022 70);
+  --input:             oklch(0.895 0.022 70);
+  --ring:              oklch(0.475 0.095 55 / 0.35);
 
   --radius:            0.875rem;  /* 14px */
 }
@@ -65,14 +77,28 @@
 
 ```css
 :root {
-  --focus:      oklch(0.624 0.090 145);  /* 专注中 — 鼠尾草绿 */
-  --focus-soft: oklch(0.945 0.030 145);
-  --focus-glow: oklch(0.624 0.090 145 / 0.25);
+  --focus:      oklch(0.580 0.085 135);  /* 专注中 — 苔藓绿（hue 135 偏黄） */
+  --focus-soft: oklch(0.945 0.032 135);
+  --focus-glow: oklch(0.580 0.085 135 / 0.28);
 
-  --away:       oklch(0.710 0.110 55);   /* 摸鱼中 — 暖琥珀 */
-  --away-soft:  oklch(0.955 0.024 55);
+  --away:       oklch(0.700 0.115 60);   /* 摸鱼中 — 暖琥珀 */
+  --away-soft:  oklch(0.955 0.030 60);
 }
 ```
+
+### 2.2.1 ECharts HEX 等价（v2.1）
+
+ECharts 不支持 OKLCH，使用 HEX 等价值（在 sRGB gamut 内匹配）：
+
+| Token | OKLCH | HEX |
+|-------|-------|-----|
+| primary | 0.475 0.095 55 | `#844c21` |
+| focus | 0.580 0.085 135 | `#648652` |
+| focus mid | 0.700 0.075 135 | `#8aa97a` |
+| focus light | 0.870 0.060 135 | `#c4deb6` |
+| focus deep | 0.430 0.075 135 | `#3d592e` |
+| away | 0.700 0.115 60 | `#d28c50` |
+| heatmap empty | (neutral cream) | `#f0ebe0` |
 
 ### 2.3 Night Library 暗色调（预留）
 
@@ -80,10 +106,10 @@
 
 ```css
 .dark {
-  --background:   oklch(0.180 0.012 60);  /* 深胡桃木 */
-  --foreground:   oklch(0.920 0.013 80);  /* 柔奶油 */
-  --card:         oklch(0.230 0.012 60);
-  --primary:      oklch(0.625 0.110 280); /* 微亮靛蓝 */
+  --background:   oklch(0.185 0.014 55);  /* 深胡桃木 */
+  --foreground:   oklch(0.925 0.018 75);  /* 柔奶油 */
+  --card:         oklch(0.235 0.016 55);
+  --primary:      oklch(0.700 0.115 60); /* 亮焦糖（夜间提亮） */
   /* ... 完整定义见 index.css */
 }
 ```
@@ -94,12 +120,12 @@
 |-------|-------|---------|
 | `--background` | `oklch(0.972 0.013 80)` | `#faf7f2` |
 | `--foreground` | `oklch(0.295 0.018 60)` | `#3d3529` |
-| `--primary` | `oklch(0.480 0.103 280)` | `#5d5fa0` |
-| `--focus` | `oklch(0.624 0.090 145)` | `#7aa07d` |
-| `--away` | `oklch(0.710 0.110 55)` | `#cf9a6f` |
-| `--destructive` | `oklch(0.598 0.106 25)` | `#b57070` |
-| `--border` | `oklch(0.916 0.014 80)` | `#e6e0d3` |
-| `--muted-foreground` | `oklch(0.604 0.018 70)` | `#928879` |
+| `--primary` | `oklch(0.475 0.095 55)` | `#844c21` |
+| `--focus` | `oklch(0.580 0.085 135)` | `#648652` |
+| `--away` | `oklch(0.700 0.115 60)` | `#d28c50` |
+| `--destructive` | `oklch(0.560 0.140 28)` | `#a44a1f` |
+| `--border` | `oklch(0.895 0.022 70)` | `#e0d4c0` |
+| `--muted-foreground` | `oklch(0.555 0.025 65)` | `#857058` |
 
 ---
 
@@ -169,14 +195,14 @@ toast.warning("警告");
 - 全局单一 store：`reactive({ toasts: [] })` 单例
 - 自动消失：默认 4000ms，自定义 `{ duration: N }`
 - 渲染：`<Teleport to="body">` + `<TransitionGroup>` + role="region" aria-label="通知"
-- 4 色调（sage/rose/indigo/amber）匹配 OKLCH design tokens
+- 4 色调（sage/vermillion/caramel/amber）匹配 OKLCH design tokens，全暖调
 
 ### 4.3 状态指示器（自定义）
 
 | 状态 | 颜色 (Tailwind class) | 效果 |
 |------|----------------------|------|
-| 专注中 | `bg-[oklch(0.624_0.090_145)] animate-pulse` | breathe 呼吸 |
-| 摸鱼中 | `bg-[oklch(0.710_0.110_55)] shadow-[0_0_6px_oklch(0.710_0.110_55/0.4)]` | 静态发光 |
+| 专注中 | `bg-[oklch(0.580_0.085_135)] animate-pulse` | breathe 呼吸 |
+| 摸鱼中 | `bg-[oklch(0.700_0.115_60)] shadow-[0_0_6px_oklch(0.700_0.115_60/0.4)]` | 静态发光 |
 | 离线 | `bg-muted-foreground/40` | 无发光 |
 
 ---

@@ -1,7 +1,7 @@
 <template>
   <Card>
     <CardContent class="flex items-center gap-5 pt-6">
-      <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[oklch(0.955_0.024_55)] text-[oklch(0.710_0.110_55)]">
+      <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[oklch(0.955_0.030_60)] text-[oklch(0.700_0.115_60)]">
         <Flame class="h-7 w-7" />
       </div>
       <div class="flex flex-col items-center gap-1">
@@ -21,14 +21,14 @@
           <span class="text-sm text-muted-foreground">今日打卡:</span>
           <span
             v-if="streak.today_done"
-            class="flex items-center gap-1 text-sm font-medium text-[oklch(0.624_0.090_145)]"
+            class="flex items-center gap-1 text-sm font-medium text-[oklch(0.580_0.085_135)]"
           >
             <CheckCircle2 class="h-3.5 w-3.5" />
             已完成
           </span>
           <span
             v-else
-            class="flex items-center gap-1 text-sm font-medium text-[oklch(0.710_0.110_55)]"
+            class="flex items-center gap-1 text-sm font-medium text-[oklch(0.700_0.115_60)]"
           >
             <Hourglass class="h-3.5 w-3.5" />
             进行中

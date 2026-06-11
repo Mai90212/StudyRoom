@@ -13,17 +13,17 @@ const iconMap = {
 };
 
 const toneClasses = {
-  success: "border-[oklch(0.624_0.090_145_/_0.35)] bg-[oklch(0.945_0.030_145)] text-[oklch(0.295_0.018_60)]",
-  error: "border-[oklch(0.598_0.106_25_/_0.40)] bg-[oklch(0.945_0.028_25)] text-[oklch(0.295_0.018_60)]",
-  info: "border-[oklch(0.480_0.103_280_/_0.30)] bg-[oklch(0.945_0.025_280)] text-[oklch(0.295_0.018_60)]",
-  warning: "border-[oklch(0.710_0.110_55_/_0.40)] bg-[oklch(0.955_0.024_55)] text-[oklch(0.295_0.018_60)]",
+  success: "border-[oklch(0.580_0.085_135_/_0.35)] bg-[oklch(0.945_0.032_135)] text-[oklch(0.295_0.018_60)]",
+  error: "border-[oklch(0.560_0.140_28_/_0.40)] bg-[oklch(0.952_0.030_28)] text-[oklch(0.295_0.018_60)]",
+  info: "border-[oklch(0.475_0.095_55_/_0.32)] bg-[oklch(0.948_0.028_55)] text-[oklch(0.295_0.018_60)]",
+  warning: "border-[oklch(0.700_0.115_60_/_0.40)] bg-[oklch(0.955_0.030_60)] text-[oklch(0.295_0.018_60)]",
 };
 
 const iconColor = {
-  success: "text-[oklch(0.624_0.090_145)]",
-  error: "text-[oklch(0.598_0.106_25)]",
-  info: "text-[oklch(0.480_0.103_280)]",
-  warning: "text-[oklch(0.710_0.110_55)]",
+  success: "text-[oklch(0.580_0.085_135)]",
+  error: "text-[oklch(0.560_0.140_28)]",
+  info: "text-[oklch(0.475_0.095_55)]",
+  warning: "text-[oklch(0.700_0.115_60)]",
 };
 </script>
 

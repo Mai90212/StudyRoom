@@ -29,7 +29,7 @@
             :class="cn(
               'h-2.5 w-2.5 shrink-0 rounded-full',
               u.is_online
-                ? 'bg-[oklch(0.624_0.090_145)] shadow-[0_0_6px_oklch(0.624_0.090_145/0.5)] animate-pulse'
+                ? 'bg-[oklch(0.580_0.085_135)] shadow-[0_0_6px_oklch(0.580_0.085_135/0.5)] animate-pulse'
                 : 'bg-muted-foreground/40'
             )"
           ></span>
@@ -45,7 +45,7 @@
             <span
               :class="cn(
                 'text-xs',
-                u.is_online ? 'text-[oklch(0.624_0.090_145)]' : 'text-muted-foreground'
+                u.is_online ? 'text-[oklch(0.580_0.085_135)]' : 'text-muted-foreground'
               )"
             >
               {{ u.is_online ? "在线" : "离线" }}

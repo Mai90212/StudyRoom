@@ -37,8 +37,8 @@ const heatmapRef = ref(null);
 let chart = null;
 let resizeHandler = null;
 
-// 暖调书房 sage-green 渐变（heatmap 5 级）—— 对应 OKLCH design tokens 的 HEX 等价
-const palette = ["#f0ebe0", "#bdd7c0", "#7aa07d", "#5a8460", "#3d6443"];
+// Heatmap 5 级渐变：暖奶油 → 苔藓绿（hue 135），与 --focus token 一致
+const palette = ["#f0ebe0", "#c4deb6", "#8aa97a", "#648652", "#3d592e"];
 
 function initChart() {
   if (!heatmapRef.value) return;

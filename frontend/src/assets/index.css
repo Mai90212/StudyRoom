@@ -50,34 +50,37 @@
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.295 0.018 60);
 
-  --primary: oklch(0.480 0.103 280);
-  --primary-foreground: oklch(1 0 0);
+  /* Warm caramel primary — hue 50 同温区，配暖奶油底无违和感
+   * 替换原 oklch(0.480 0.103 280) 学术靛蓝（hue 280 互补色撞色） */
+  --primary: oklch(0.475 0.095 55);
+  --primary-foreground: oklch(0.985 0.008 80);
 
-  --secondary: oklch(0.945 0.014 80);
+  --secondary: oklch(0.945 0.018 70);
   --secondary-foreground: oklch(0.295 0.018 60);
 
-  --muted: oklch(0.945 0.014 80);
-  --muted-foreground: oklch(0.604 0.018 70);
+  --muted: oklch(0.945 0.014 75);
+  --muted-foreground: oklch(0.555 0.025 65);
 
-  --accent: oklch(0.945 0.025 280);
-  --accent-foreground: oklch(0.295 0.018 60);
+  --accent: oklch(0.930 0.032 60);
+  --accent-foreground: oklch(0.350 0.060 50);
 
-  --destructive: oklch(0.598 0.106 25);
-  --destructive-foreground: oklch(1 0 0);
+  /* 危险色：朱砂红（vermillion），暖系不带冷玫瑰感 */
+  --destructive: oklch(0.560 0.140 28);
+  --destructive-foreground: oklch(0.985 0.008 80);
 
-  --border: oklch(0.916 0.014 80);
-  --input: oklch(0.916 0.014 80);
-  --ring: oklch(0.480 0.103 280 / 0.35);
+  --border: oklch(0.895 0.022 70);
+  --input: oklch(0.895 0.022 70);
+  --ring: oklch(0.475 0.095 55 / 0.35);
 
   --radius: 0.875rem;
 
-  /* --- app semantic colors (status: focus / away / danger) --- */
-  --focus: oklch(0.624 0.090 145);
-  --focus-soft: oklch(0.945 0.030 145);
-  --focus-glow: oklch(0.624 0.090 145 / 0.25);
+  /* 状态语义色：focus 改为深苔藓绿（hue 135 偏黄，与暖底协调），away 暖琥珀保留 */
+  --focus: oklch(0.580 0.085 135);
+  --focus-soft: oklch(0.945 0.032 135);
+  --focus-glow: oklch(0.580 0.085 135 / 0.28);
 
-  --away: oklch(0.710 0.110 55);
-  --away-soft: oklch(0.955 0.024 55);
+  --away: oklch(0.700 0.115 60);
+  --away-soft: oklch(0.955 0.030 60);
 
   /* --- elevation --- */
   --shadow-xs: 0 1px 2px oklch(0.295 0.018 60 / 0.04);
@@ -95,40 +98,40 @@
  * Night Library — dark mode palette (reserved, no toggle yet)
  * ============================================================= */
 .dark {
-  --background: oklch(0.180 0.012 60);
-  --foreground: oklch(0.920 0.013 80);
+  --background: oklch(0.185 0.014 55);
+  --foreground: oklch(0.925 0.018 75);
 
-  --card: oklch(0.230 0.012 60);
-  --card-foreground: oklch(0.920 0.013 80);
+  --card: oklch(0.235 0.016 55);
+  --card-foreground: oklch(0.925 0.018 75);
 
-  --popover: oklch(0.230 0.012 60);
-  --popover-foreground: oklch(0.920 0.013 80);
+  --popover: oklch(0.235 0.016 55);
+  --popover-foreground: oklch(0.925 0.018 75);
 
-  --primary: oklch(0.625 0.110 280);
-  --primary-foreground: oklch(0.180 0.012 60);
+  --primary: oklch(0.700 0.115 60);
+  --primary-foreground: oklch(0.185 0.014 55);
 
-  --secondary: oklch(0.265 0.014 60);
-  --secondary-foreground: oklch(0.920 0.013 80);
+  --secondary: oklch(0.270 0.018 60);
+  --secondary-foreground: oklch(0.925 0.018 75);
 
-  --muted: oklch(0.265 0.014 60);
-  --muted-foreground: oklch(0.680 0.016 70);
+  --muted: oklch(0.270 0.018 60);
+  --muted-foreground: oklch(0.700 0.020 70);
 
-  --accent: oklch(0.310 0.040 280);
-  --accent-foreground: oklch(0.920 0.013 80);
+  --accent: oklch(0.315 0.040 60);
+  --accent-foreground: oklch(0.925 0.018 75);
 
-  --destructive: oklch(0.620 0.118 25);
-  --destructive-foreground: oklch(0.980 0.005 80);
+  --destructive: oklch(0.640 0.140 28);
+  --destructive-foreground: oklch(0.985 0.008 80);
 
-  --border: oklch(0.300 0.010 60);
-  --input: oklch(0.300 0.010 60);
-  --ring: oklch(0.625 0.110 280 / 0.45);
+  --border: oklch(0.305 0.014 60);
+  --input: oklch(0.305 0.014 60);
+  --ring: oklch(0.700 0.115 60 / 0.45);
 
-  --focus: oklch(0.690 0.100 145);
-  --focus-soft: oklch(0.310 0.034 145);
-  --focus-glow: oklch(0.690 0.100 145 / 0.30);
+  --focus: oklch(0.680 0.090 135);
+  --focus-soft: oklch(0.310 0.030 135);
+  --focus-glow: oklch(0.680 0.090 135 / 0.32);
 
-  --away: oklch(0.760 0.115 55);
-  --away-soft: oklch(0.320 0.028 55);
+  --away: oklch(0.760 0.118 60);
+  --away-soft: oklch(0.320 0.030 60);
 
   --shadow-xs: 0 1px 2px oklch(0 0 0 / 0.30);
   --shadow-sm: 0 1px 3px oklch(0 0 0 / 0.40), 0 1px 2px oklch(0 0 0 / 0.30);

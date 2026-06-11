@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center px-6 bg-[radial-gradient(ellipse_at_50%_0%,_oklch(0.480_0.103_280/0.06)_0%,_transparent_60%)] bg-background">
+  <div class="min-h-screen flex items-center justify-center px-6 bg-[radial-gradient(ellipse_at_50%_0%,_oklch(0.475_0.095_55/0.08)_0%,_transparent_60%)] bg-background">
     <Card class="w-full max-w-md animate-in slide-in-from-bottom-4 fade-in duration-500 shadow-xl">
       <CardHeader class="text-center">
         <div class="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-secondary text-primary">

@@ -42,7 +42,7 @@
           <span class="flex-1 truncate text-sm font-medium">
             {{ item.nickname || "用户 #" + item.user_id }}
           </span>
-          <span class="font-mono text-sm font-semibold text-[oklch(0.624_0.090_145)]">
+          <span class="font-mono text-sm font-semibold text-[oklch(0.580_0.085_135)]">
             {{ formatMinutes(item.total_minutes) }}
           </span>
         </div>
@@ -78,9 +78,9 @@ const currentUserId = computed(() => {
 });
 
 function rankClass(index) {
-  if (index === 0) return "bg-[oklch(0.710_0.110_55)] text-white";
+  if (index === 0) return "bg-[oklch(0.700_0.115_60)] text-white";
   if (index === 1) return "bg-muted text-muted-foreground";
-  if (index === 2) return "bg-[oklch(0.598_0.106_25/0.8)] text-white";
+  if (index === 2) return "bg-[oklch(0.560_0.140_28/0.8)] text-white";
   return "bg-muted text-muted-foreground";
 }
 

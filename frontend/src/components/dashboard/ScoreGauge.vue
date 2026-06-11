@@ -50,10 +50,10 @@ const gaugeRef = ref(null);
 let chart = null;
 let resizeHandler = null;
 
-// 三档分数色（amber → light-sage → focus-sage）—— 对应 design tokens
-const AMBER = "#cf9a6f";
-const LIGHT_SAGE = "#bdd7c0";
-const SAGE = "#7aa07d";
+// 三档分数色：暖琥珀 → 嫩苔 → 深苔，与 --away/--focus token 对应
+const AMBER = "#d28c50";
+const LIGHT_SAGE = "#c4deb6";
+const SAGE = "#648652";
 
 function initChart() {
   if (!gaugeRef.value) return;
