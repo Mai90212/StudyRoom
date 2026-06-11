@@ -4,12 +4,12 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from studyroom.users.service import auth_service
 
-from .entities import FocusReportRequest, FocusSummaryResponse
+from .entities import FocusHourlyReportRequest, FocusReportRequest, FocusSessionReportRequest, FocusSummaryResponse
 from .service import focus_service
 
 router = APIRouter(prefix="/focus", tags=["专注计时"])
@@ -47,17 +47,17 @@ async def my_focus(user_id: int = Depends(_resolve_focus_user)):
 
 @router.post("/session")
 async def report_session(
-    data: dict,
+    data: FocusSessionReportRequest,
     user_id: int = Depends(_resolve_focus_user),
 ):
     """上报专注会话（离开房间时）。"""
     from bedrock.database import db
     from studyroom.dashboard.models import FocusSession
 
-    room_id = data.get("room_id")
-    total_seconds = data.get("total_seconds", 0)
-    away_seconds = data.get("away_seconds", 0)
-    away_count = data.get("away_count", 0)
+    room_id = data.room_id
+    total_seconds = data.total_seconds
+    away_seconds = data.away_seconds
+    away_count = data.away_count
 
     if room_id is None:
         return {"detail": "缺少 room_id"}
@@ -80,23 +80,25 @@ async def report_session(
 
 @router.post("/hourly")
 async def report_hourly(
-    data: dict,
+    data: FocusHourlyReportRequest,
     user_id: int = Depends(_resolve_focus_user),
 ):
     """上报小时专注时长。"""
     from bedrock.database import db
     from studyroom.dashboard.models import FocusHourlyRecord
 
-    room_id = data.get("room_id")
-    hour_start = data.get("hour_start")
-    duration_seconds = data.get("duration_seconds", 0)
+    room_id = data.room_id
+    hour_start = data.hour_start
+    duration_seconds = data.duration_seconds
 
     if room_id is None or hour_start is None:
         return {"detail": "缺少参数"}
 
-    # 解析 hour_start
     if isinstance(hour_start, str):
-        hour_start = datetime.fromisoformat(hour_start)
+        try:
+            hour_start = datetime.fromisoformat(hour_start)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail="hour_start 必须是有效的 ISO 日期时间字符串") from exc
 
     from datetime import date
 

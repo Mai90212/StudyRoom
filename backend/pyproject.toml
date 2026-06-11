@@ -5,6 +5,7 @@ description = "在线自习室 — FastAPI + WebSocket + bedrock-py"
 requires-python = ">=3.12"
 dependencies = [
     "bedrock-core>=0.1.0",
+    "email-validator>=2.2.0",
     "fastapi>=0.115.0",
     "uvicorn[standard]>=0.34.0",
     "pyjwt>=2.10.0",

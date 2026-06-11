@@ -494,6 +494,11 @@ let hourlyReportTimer = null;
 let graceTimer = null;
 let heartbeatTimer = null;
 let focusTimer = null;
+let pendingFocusSeconds = 0;
+let pendingHourlyFocusSeconds = 0;
+let isSessionReportPending = false;
+
+const REPORT_RETRY_DELAY_MS = 2000;
 
 // ============================================================
 // Computed
@@ -673,44 +678,84 @@ function startFocusTimer() {
 // ============================================================
 // 数据上报（focus / hourly / session）
 // ============================================================
+function apiWithOneRetry(url, options) {
+  return api(url, options).catch(() => new Promise((resolve, reject) => {
+    setTimeout(() => {
+      api(url, options).then(resolve).catch(reject);
+    }, REPORT_RETRY_DELAY_MS);
+  }));
+}
+
 function reportTime() {
-  if (focusSeconds.value > 0) {
-    api("/focus/report", {
-      method: "POST",
-      body: JSON.stringify({
-        room_id: props.roomId,
-        total_focus_seconds: focusSeconds.value,
-      }),
-    }).catch(() => {});
-    focusSeconds.value = 0;
-  }
+  const reportSeconds = focusSeconds.value - pendingFocusSeconds;
+  if (reportSeconds <= 0) return;
+
+  pendingFocusSeconds += reportSeconds;
+  apiWithOneRetry("/focus/report", {
+    method: "POST",
+    body: JSON.stringify({
+      room_id: props.roomId,
+      total_focus_seconds: reportSeconds,
+    }),
+  })
+    .then(() => {
+      focusSeconds.value = Math.max(0, focusSeconds.value - reportSeconds);
+    })
+    .catch(() => {})
+    .finally(() => {
+      pendingFocusSeconds = Math.max(0, pendingFocusSeconds - reportSeconds);
+    });
 }
 
 function reportHourlyFocus() {
-  if (currentHourFocus > 0 && currentHourStart) {
-    api("/focus/hourly", {
-      method: "POST",
-      body: JSON.stringify({
-        room_id: props.roomId,
-        hour_start: currentHourStart.toISOString(),
-        duration_seconds: currentHourFocus,
-      }),
-    }).catch(() => {});
-    currentHourFocus = 0;
-  }
+  const reportSeconds = currentHourFocus - pendingHourlyFocusSeconds;
+  if (reportSeconds <= 0 || !currentHourStart) return;
+
+  pendingHourlyFocusSeconds += reportSeconds;
+  apiWithOneRetry("/focus/hourly", {
+    method: "POST",
+    body: JSON.stringify({
+      room_id: props.roomId,
+      hour_start: currentHourStart.toISOString(),
+      duration_seconds: reportSeconds,
+    }),
+  })
+    .then(() => {
+      currentHourFocus = Math.max(0, currentHourFocus - reportSeconds);
+    })
+    .catch(() => {})
+    .finally(() => {
+      pendingHourlyFocusSeconds = Math.max(0, pendingHourlyFocusSeconds - reportSeconds);
+    });
 }
 
 function reportSession() {
-  const totalSeconds = Math.floor((Date.now() - sessionStartTime) / 1000);
-  api("/focus/session", {
+  if (isSessionReportPending) return;
+
+  const reportedAt = Date.now();
+  const totalSeconds = Math.floor((reportedAt - sessionStartTime) / 1000);
+  const awaySeconds = Math.floor(totalAwaySeconds);
+  const reportedAwayCount = awayCount;
+
+  isSessionReportPending = true;
+  apiWithOneRetry("/focus/session", {
     method: "POST",
     body: JSON.stringify({
       room_id: props.roomId,
       total_seconds: totalSeconds,
-      away_seconds: Math.floor(totalAwaySeconds),
-      away_count: awayCount,
+      away_seconds: awaySeconds,
+      away_count: reportedAwayCount,
     }),
-  }).catch(() => {});
+  })
+    .then(() => {
+      sessionStartTime = reportedAt;
+      totalAwaySeconds = Math.max(0, totalAwaySeconds - awaySeconds);
+      awayCount = Math.max(0, awayCount - reportedAwayCount);
+    })
+    .catch(() => {})
+    .finally(() => {
+      isSessionReportPending = false;
+    });
 }
 
 function scheduleHourlyReport() {

@@ -37,6 +37,7 @@ class ConnectionManager:
     def __init__(self) -> None:
         self._rooms: dict[int, dict[int, UserConnection]] = {}
         self._user_room: dict[int, int] = {}
+        self._lock = asyncio.Lock()
 
     # ------------------------------------------------------------------
     # 连接管理
@@ -50,23 +51,33 @@ class ConnectionManager:
         """
         await websocket.accept()
 
-        old_room_id = self._user_room.get(user_id)
-        if old_room_id is not None:
-            await self._remove_user_from_room(user_id, old_room_id, reason="offline")
+        async with self._lock:
+            old_room_id = self._user_room.get(user_id)
+            old_conn = None
+            if old_room_id is not None:
+                old_conn = self._pop_user_from_room(user_id, old_room_id)
 
-        if room_id not in self._rooms:
-            self._rooms[room_id] = {}
+            if room_id not in self._rooms:
+                self._rooms[room_id] = {}
 
-        # 先收集已有成员（新用户需要看到他们）
-        existing = [
-            {"user_id": uid, "status": conn.status}
-            for uid, conn in self._rooms[room_id].items()
-        ]
+            # 先收集已有成员（新用户需要看到他们）
+            existing = [
+                {"user_id": uid, "status": room_conn.status}
+                for uid, room_conn in self._rooms[room_id].items()
+            ]
 
-        # 将新用户加入房间
-        conn = UserConnection(user_id=user_id, websocket=websocket)
-        self._rooms[room_id][user_id] = conn
-        self._user_room[user_id] = room_id
+            # 将新用户加入房间
+            conn = UserConnection(user_id=user_id, websocket=websocket)
+            self._rooms[room_id][user_id] = conn
+            self._user_room[user_id] = room_id
+
+        if old_conn:
+            await self._close_socket(old_conn.websocket)
+            await self._broadcast(old_room_id, {
+                "type": "user_leave",
+                "user_id": user_id,
+                "reason": "offline",
+            }, exclude_user_id=user_id)
 
         # 给新用户发送当前房间状态（包含自己）
         all_members = existing + [{"user_id": user_id, "status": conn.status}]
@@ -74,6 +85,10 @@ class ConnectionManager:
             "type": "room_state",
             "members": all_members,
         })
+
+        async with self._lock:
+            if self._get_connection(room_id, user_id) is not conn:
+                return
 
         # 广播新用户加入（给其他用户）
         await self._broadcast(room_id, {
@@ -88,11 +103,14 @@ class ConnectionManager:
         如果传入 websocket，仅当当前连接与之匹配时才移除，
         防止旧连接的断开处理误杀已建立的新连接。
         """
-        if websocket is not None:
-            conn = self._get_connection(room_id, user_id)
-            if conn is None or conn.websocket is not websocket:
-                return
-        await self._remove_user_from_room(user_id, room_id, reason="offline")
+        async with self._lock:
+            if websocket is not None:
+                conn = self._get_connection(room_id, user_id)
+                if conn is None or conn.websocket is not websocket:
+                    return
+            conn = self._pop_user_from_room(user_id, room_id)
+
+        await self._close_and_broadcast_removal(conn, room_id, user_id, "offline")
 
     async def leave(self, room_id: int, user_id: int) -> None:
         """用户主动离开房间。"""
@@ -197,9 +215,14 @@ class ConnectionManager:
         self, user_id: int, room_id: int, reason: str
     ) -> None:
         """将用户从房间移除，关闭连接，广播离开事件。"""
-        conn = self._rooms.get(room_id, {}).pop(user_id, None)
-        self._user_room.pop(user_id, None)
+        async with self._lock:
+            conn = self._pop_user_from_room(user_id, room_id)
 
+        await self._close_and_broadcast_removal(conn, room_id, user_id, reason)
+
+    async def _close_and_broadcast_removal(
+        self, conn: UserConnection | None, room_id: int, user_id: int, reason: str
+    ) -> None:
         if conn:
             await self._close_socket(conn.websocket)
             await self._broadcast(room_id, {
@@ -208,26 +231,37 @@ class ConnectionManager:
                 "reason": reason,
             })
 
+    def _pop_user_from_room(self, user_id: int, room_id: int) -> UserConnection | None:
+        conn = self._rooms.get(room_id, {}).pop(user_id, None)
+        self._user_room.pop(user_id, None)
+
         if room_id in self._rooms and not self._rooms[room_id]:
             del self._rooms[room_id]
 
+        return conn
+
     async def _broadcast(self, room_id: int, message: dict, exclude_user_id: int | None = None) -> None:
         """向房间内所有连接广播消息，断开失败的连接。"""
-        if room_id not in self._rooms:
-            return
+        async with self._lock:
+            if room_id not in self._rooms:
+                return
+            items = list(self._rooms[room_id].items())
 
         raw = json.dumps(message)
-        dead_users: list[int] = []
+        dead_connections: list[tuple[int, UserConnection]] = []
 
-        for user_id, conn in self._rooms[room_id].items():
+        for user_id, conn in items:
             if user_id == exclude_user_id:
                 continue
             try:
                 await conn.websocket.send_text(raw)
             except Exception:
-                dead_users.append(user_id)
+                dead_connections.append((user_id, conn))
 
-        for user_id in dead_users:
+        for user_id, conn in dead_connections:
+            async with self._lock:
+                if self._get_connection(room_id, user_id) is not conn:
+                    continue
             await self._remove_user_from_room(user_id, room_id, reason="offline")
 
     @staticmethod

@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-from typing import Optional
 
 from fastapi import APIRouter, Depends, Query, WebSocket, WebSocketDisconnect
 
@@ -112,7 +111,7 @@ async def kick_member(
 
 
 @router.get("/{room_id}")
-async def get_room(room_id: int):
+async def get_room(room_id: int, _user_id: int = Depends(get_current_user_id)):
     """获取单个房间信息。"""
     r = room_service.get_room(room_id)
     return {
@@ -122,12 +121,12 @@ async def get_room(room_id: int):
 
 
 @router.get("/{room_id}/members")
-async def get_members(room_id: int):
+async def get_members(room_id: int, _user_id: int = Depends(get_current_user_id)):
     return room_service.get_room_members(room_id)
 
 
 @router.get("/{room_id}/leaderboard")
-async def get_room_leaderboard(room_id: int):
+async def get_room_leaderboard(room_id: int, _user_id: int = Depends(get_current_user_id)):
     """获取房间内今日专注排行榜。"""
     from studyroom.dashboard.service import leaderboard_service
     return leaderboard_service.get_room_leaderboard(room_id)
@@ -143,23 +142,20 @@ async def room_websocket(
     websocket: WebSocket,
     room_id: int,
     token: str = Query("", description="JWT Token"),
-    user_id: int | None = Query(None, description="用户 ID（已废弃，请使用 JWT）"),
 ):
     """自习室 WebSocket 长连接。
 
     连接方式：``ws://host/rooms/{room_id}/ws?token=JWT_TOKEN``
     """
-    if token:
-        from studyroom.users.service import auth_service
-        try:
-            uid = auth_service.get_user_id_from_token(token)
-        except Exception:
-            await websocket.close(code=4001, reason="Token 无效")
-            return
-    elif user_id is not None:
-        uid = user_id
-    else:
-        await websocket.close(code=4001, reason="请提供 token 或 user_id")
+    if not token:
+        await websocket.close(code=4001, reason="请提供 token")
+        return
+
+    from studyroom.users.service import auth_service
+    try:
+        uid = auth_service.get_user_id_from_token(token)
+    except Exception:
+        await websocket.close(code=4001, reason="Token 无效")
         return
 
     try:

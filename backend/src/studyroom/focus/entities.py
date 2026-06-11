@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, datetime
 
 from bedrock.entities import BedrockEntity
+from pydantic import Field
 
 
 class FocusReportRequest(BedrockEntity):
@@ -12,6 +13,19 @@ class FocusReportRequest(BedrockEntity):
 
     room_id: int
     total_focus_seconds: int
+
+
+class FocusSessionReportRequest(BedrockEntity):
+    room_id: int | None = None
+    total_seconds: int = Field(0, ge=0)
+    away_seconds: int = Field(0, ge=0)
+    away_count: int = Field(0, ge=0)
+
+
+class FocusHourlyReportRequest(BedrockEntity):
+    room_id: int | None = None
+    hour_start: datetime | str | None = None
+    duration_seconds: int = Field(0, ge=0)
 
 
 class RoomFocusItem(BedrockEntity):

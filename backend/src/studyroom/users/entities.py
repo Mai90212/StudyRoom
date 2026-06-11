@@ -3,14 +3,15 @@
 from __future__ import annotations
 
 from bedrock.entities import BedrockEntity
+from pydantic import EmailStr, Field
 
 
 class RegisterRequest(BedrockEntity):
     """注册请求。"""
 
-    email: str
-    password: str
-    nickname: str
+    email: EmailStr
+    password: str = Field(..., min_length=8, max_length=128)
+    nickname: str = Field(..., min_length=1, max_length=30)
 
 
 class VerifyEmailRequest(BedrockEntity):

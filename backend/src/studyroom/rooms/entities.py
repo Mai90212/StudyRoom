@@ -5,12 +5,13 @@ from __future__ import annotations
 from datetime import datetime
 
 from bedrock.entities import BedrockEntity
+from pydantic import Field
 
 
 class RoomCreate(BedrockEntity):
     """创建房间请求。"""
 
-    name: str
+    name: str = Field(..., min_length=1, max_length=50)
     max_members: int = 20
 
 
