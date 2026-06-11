@@ -28,7 +28,7 @@ def ready(*, registry: ModuleRegistry, app: AppConfig) -> None:
     """所有模块就绪后调用 — 初始化数据库并启动超时检查。"""
     from bedrock.database.base import BedrockModel
 
-    db.init("sqlite:///studyroom.db")
+    db.init()
     BedrockModel.metadata.create_all(db.engine)
 
     global _timeout_task
