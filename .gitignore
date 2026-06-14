@@ -20,10 +20,6 @@ dist/
 # Reference
 _reference/
 
-# Build / lock
-frontend/package-lock.json
-backend/uv.lock
-
 # Logs
 *.log
 settings.local.json
