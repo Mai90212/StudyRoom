@@ -33,3 +33,6 @@ settings.local.json
 
 # Playwright MCP debug artifacts
 .playwright-mcp/
+
+# 部署指南（包含服务器配置信息，不提交到仓库）
+DEPLOY.md
