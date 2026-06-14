@@ -28,7 +28,7 @@ router.beforeEach(async (to, from, next) => {
     }
     // 验证 token 是否有效
     try {
-      const resp = await fetch("http://localhost:8000/auth/me", {
+      const resp = await fetch("/api/auth/me", {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!resp.ok) {

@@ -1,4 +1,4 @@
-const BASE = "http://localhost:8000";
+const BASE = "/api";
 
 export function getToken() {
   return localStorage.getItem("token");

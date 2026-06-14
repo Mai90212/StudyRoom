@@ -11,7 +11,11 @@
 
       <CardContent>
         <Tabs v-model="mode" class="w-full">
-          <TabsList class="grid w-full grid-cols-2">
+          <TabsList class="grid w-full grid-cols-2 relative">
+            <div
+              class="absolute inset-y-0 left-0 bg-background shadow-sm rounded-md transition-[width,transform] duration-300 ease-in-out pointer-events-none"
+              :style="mode === 'login' ? { width: '50%', transform: 'translateX(0%)' } : { width: '50%', transform: 'translateX(100%)' }"
+            />
             <TabsTrigger value="login">登录</TabsTrigger>
             <TabsTrigger value="register">注册</TabsTrigger>
           </TabsList>

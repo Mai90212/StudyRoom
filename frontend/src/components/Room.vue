@@ -883,7 +883,7 @@ function onBeforeUnload() {
       [JSON.stringify({ room_id: props.roomId, total_focus_seconds: focusSeconds.value })],
       { type: "application/json" }
     );
-    navigator.sendBeacon(`http://localhost:8000/focus/report?token=${token}`, blob);
+    navigator.sendBeacon(`/api/focus/report?token=${token}`, blob);
     focusSeconds.value = 0;
   }
   const totalSeconds = Math.floor((Date.now() - sessionStartTime) / 1000);
@@ -898,7 +898,7 @@ function onBeforeUnload() {
     ],
     { type: "application/json" }
   );
-  navigator.sendBeacon(`http://localhost:8000/focus/session?token=${token}`, sessionBlob);
+  navigator.sendBeacon(`/api/focus/session?token=${token}`, sessionBlob);
 }
 
 // ============================================================
