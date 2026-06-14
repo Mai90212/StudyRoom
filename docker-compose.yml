@@ -1,0 +1,84 @@
+# StudyRoom Docker Compose
+# 使用方法: docker compose up -d
+
+services:
+  # ── MySQL 数据库 ──
+  mysql:
+    image: mysql:8.0
+    container_name: studyroom-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-studyroom}
+      MYSQL_USER: ${MYSQL_USER:-studyroom}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-studypassword}
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql/my.cnf:/etc/mysql/conf.d/custom.cnf:ro
+      - ./mysql/initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-rootpassword}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - studyroom
+
+  # ── FastAPI 后端 ──
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: studyroom-backend
+    restart: unless-stopped
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    environment:
+      - DATABASE_TYPE=mysql
+      - DATABASE_DRIVER=pymysql
+      - DATABASE_HOST=mysql
+      - DATABASE_PORT=3306
+      - DATABASE_USERNAME=${MYSQL_USER:-studyroom}
+      - DATABASE_PASSWORD=${MYSQL_PASSWORD:-studypassword}
+      - DATABASE_SCHEMA=${MYSQL_DATABASE:-studyroom}
+      - JWT_SECRET=${JWT_SECRET:-your-jwt-secret-here}
+      - SMTP_HOST=${SMTP_HOST:-smtp.qq.com}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USER=${SMTP_USER:-}
+      - SMTP_PASSWORD=${SMTP_PASSWORD:-}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    networks:
+      - studyroom
+
+  # ── Vue 3 前端 ──
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: studyroom-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-80}:80"
+    depends_on:
+      - backend
+    networks:
+      - studyroom
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  studyroom:
+    driver: bridge

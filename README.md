@@ -26,9 +26,10 @@ StudyRoom 是一个实时在线自习室应用。用户可以创建/加入自习
 | 前端 | Vue 3 + Vue Router + ECharts |
 | 后端 | FastAPI + WebSocket |
 | ORM | SQLAlchemy (via bedrock-py) |
-| 数据库 | SQLite |
+| 数据库 | SQLite (开发) / MySQL 8.0 (生产) |
 | 认证 | JWT (HS256, 72h) |
 | 构建 | Vite + uv |
+| 部署 | Docker + Docker Compose |
 
 ## 快速开始
 
@@ -77,6 +78,82 @@ npx vite --host 0.0.0.0
 
 打开浏览器访问 `http://localhost:3000`，注册账号即可使用。
 
+## Docker 部署（生产环境）
+
+### 环境要求
+
+- Docker 20.10+
+- Docker Compose 2.0+
+
+### 1. 配置环境变量
+
+创建 `.env` 文件（与 `docker-compose.yml` 同目录）：
+
+```bash
+# MySQL 配置
+MYSQL_ROOT_PASSWORD=your_root_password
+MYSQL_DATABASE=studyroom
+MYSQL_USER=studyroom
+MYSQL_PASSWORD=your_mysql_password
+
+# JWT 密钥（务必修改）
+JWT_SECRET=$(python3 -c "import secrets; print(secrets.token_urlsafe(64))")
+
+# SMTP 配置（可选）
+SMTP_HOST=smtp.qq.com
+SMTP_PORT=587
+SMTP_USER=your_email@qq.com
+SMTP_PASSWORD=your_smtp_authorization_code
+```
+
+### 2. 启动服务
+
+```bash
+# 构建并启动所有服务
+docker compose up -d
+
+# 查看服务状态
+docker compose ps
+
+# 查看日志
+docker compose logs -f
+```
+
+### 3. 访问应用
+
+- 前端：http://localhost（默认端口 80）
+- 后端 API：http://localhost:8000
+- MySQL：localhost:3306
+
+### 4. 数据迁移（从 SQLite）
+
+如果有现有 SQLite 数据需要迁移：
+
+```bash
+# 确保 MySQL 服务已启动
+docker compose up -d mysql
+
+# 运行迁移脚本
+python scripts/migrate_sqlite_to_mysql.py
+```
+
+### 5. 常用命令
+
+```bash
+# 停止服务
+docker compose down
+
+# 停止并删除数据卷
+docker compose down -v
+
+# 重新构建并启动
+docker compose up -d --build
+
+# 查看特定服务日志
+docker compose logs -f backend
+docker compose logs -f mysql
+```
+
 ## 项目结构
 
 ```
@@ -85,6 +162,7 @@ StudyRoom/
 ├── .gitignore
 ├── README.md
 ├── CLAUDE.md                    # AI 助手工作指引
+├── docker-compose.yml           # Docker 编排配置
 ├── docs/                        # 完整项目文档
 │   ├── PROJECT_STATE.md         # 项目进度与决策
 │   ├── architecture.md          # 技术架构
@@ -92,6 +170,7 @@ StudyRoom/
 │   ├── design-spec.md           # 前端设计规范
 │   └── development-guide.md     # 开发环境搭建
 ├── backend/                     # FastAPI 后端
+│   ├── Dockerfile               # 后端 Docker 镜像
 │   ├── main.py                  # 入口
 │   ├── pyproject.toml           # Python 依赖
 │   └── src/studyroom/
@@ -99,13 +178,17 @@ StudyRoom/
 │       ├── rooms/               # 自习室模块（CRUD/WebSocket）
 │       ├── focus/               # 专注计时模块
 │       └── dashboard/           # 数据大盘模块
-└── frontend/                    # Vue 3 前端
-    ├── package.json
-    └── src/
-        ├── App.vue              # 全局 CSS 变量
-        ├── utils/api.js         # HTTP 封装 + JWT
-        ├── views/               # LoginView, LobbyView, DashboardView
-        └── components/          # Room, 数据大盘组件
+├── frontend/                    # Vue 3 前端
+│   ├── Dockerfile               # 前端 Docker 镜像
+│   ├── nginx.conf               # Nginx 配置
+│   ├── package.json
+│   └── src/
+├── mysql/                       # MySQL 配置
+│   ├── my.cnf                   # MySQL 配置文件
+│   └── initdb/                  # 初始化脚本
+│       └── 01-schema.sql        # 数据库表结构
+└── scripts/                     # 工具脚本
+    └── migrate_sqlite_to_mysql.py  # 数据迁移脚本
 ```
 
 ## 环境变量
@@ -117,6 +200,13 @@ StudyRoom/
 | `SMTP_PORT` | SMTP 端口 | `587` |
 | `SMTP_USER` | 发件邮箱地址 | — |
 | `SMTP_PASSWORD` | SMTP 授权码 | — |
+| `DATABASE_TYPE` | 数据库类型 | `sqlite` |
+| `DATABASE_DRIVER` | 数据库驱动 | `pysqlite` |
+| `DATABASE_HOST` | MySQL 主机 | `localhost` |
+| `DATABASE_PORT` | MySQL 端口 | `3306` |
+| `DATABASE_USERNAME` | MySQL 用户名 | `studyroom` |
+| `DATABASE_PASSWORD` | MySQL 密码 | — |
+| `DATABASE_SCHEMA` | 数据库名 | `studyroom` |
 
 > 完整模板见 `.env.example`。生产环境请务必修改 `JWT_SECRET`。
 

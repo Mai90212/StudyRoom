@@ -1,0 +1,13 @@
+# Backend .dockerignore
+__pycache__
+*.pyc
+*.pyo
+.venv
+.git
+.gitignore
+.env
+*.db
+tests/
+.pytest_cache
+.mypy_cache
+.ruff_cache
