@@ -172,10 +172,17 @@ async def room_websocket(
             await websocket.close(code=4003, reason="你不在该房间中")
             return
 
+    # 获取用户昵称
+    from studyroom.users.models import User
+    from bedrock.database import db
+    with db.session_scope() as session:
+        user = session.query(User).filter(User.id == uid).first()
+        nickname = user.nickname if user else f"用户#{uid}"
+
     # 更新数据库成员状态为专注
     room_service.update_member_status(room_id, uid, "focusing")
 
-    await manager.connect(websocket, room_id, uid)
+    await manager.connect(websocket, room_id, uid, nickname)
 
     try:
         while True:

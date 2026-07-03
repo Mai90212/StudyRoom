@@ -8,8 +8,8 @@
 
 **带同侪压力的极简在线自习室（MVP）**。用户创建/加入自习室，实时看到他人专注状态，切出页面会被广播"摸鱼"，支持房间聊天和专注计时。
 
-- **技术栈**：Vue 3 + FastAPI + WebSocket + bedrock-py + SQLite
-- **当前阶段**：rooms 高级功能 + 前端重设计已完成，下一步 focus 计时模块
+- **技术栈**：React 18 + TypeScript + FastAPI + WebSocket + bedrock-py + SQLite
+- **当前阶段**：前端已从 Vue 3 重写为 React + TSX，下一步 v2 功能（番茄钟）或上线部署
 - **核心文档**：[docs/PROJECT_STATE.md](docs/PROJECT_STATE.md) — 单点真相，每次改动后更新
 
 ---
@@ -55,12 +55,20 @@ StudyRoom/
 │   └── src/studyroom/
 │       ├── users/               # 用户模块（注册/登录/验证/JWT）
 │       └── rooms/               # 自习室模块（CRUD/WebSocket/踢人/删房）
-└── frontend/                    # Vue 3 前端
+└── frontend/                    # React 18 + TypeScript 前端
     └── src/
-        ├── App.vue              # 全局 CSS 变量（暖调书房主题）
-        ├── utils/api.js         # fetch 封装 + JWT + wsUrl
-        ├── views/               # LoginView, LobbyView, RoomView
-        └── components/Room.vue  # 核心组件：计时/成员/聊天/切屏
+        ├── main.tsx             # 入口（QueryClient + BrowserRouter + Toaster）
+        ├── App.tsx              # 路由根
+        ├── index.css            # OKLCH 暖调书房主题 tokens
+        ├── lib/api.ts           # Axios 实例 + JWT 拦截器 + buildWsUrl
+        ├── types/api.ts         # 全局 API 类型定义
+        ├── api/                 # 按模块拆分 API 调用
+        ├── stores/              # Zustand stores（authStore, uiStore）
+        ├── hooks/               # TanStack Query hooks
+        ├── components/ui/       # shadcn/ui 原子组件
+        ├── components/dashboard/# 仪表盘子组件（7 个）
+        ├── pages/               # LoginPage, LobbyPage, RoomPage, DashboardPage
+        └── router/index.tsx     # 路由表 + AuthGuard
 ```
 
 ---

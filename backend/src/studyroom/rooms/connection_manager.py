@@ -20,6 +20,7 @@ class UserConnection:
 
     user_id: int
     websocket: WebSocket
+    nickname: str = ""
     status: str = "focusing"
     last_heartbeat: float = field(default_factory=time.time)
     last_status_broadcast: float = 0.0
@@ -43,7 +44,7 @@ class ConnectionManager:
     # 连接管理
     # ------------------------------------------------------------------
 
-    async def connect(self, websocket: WebSocket, room_id: int, user_id: int) -> None:
+    async def connect(self, websocket: WebSocket, room_id: int, user_id: int, nickname: str = "") -> None:
         """接受 WebSocket 连接并将用户加入房间。
 
         如果用户已在其他房间，先断开旧连接。
@@ -62,12 +63,12 @@ class ConnectionManager:
 
             # 先收集已有成员（新用户需要看到他们）
             existing = [
-                {"user_id": uid, "status": room_conn.status}
+                {"user_id": uid, "nickname": room_conn.nickname, "status": room_conn.status}
                 for uid, room_conn in self._rooms[room_id].items()
             ]
 
             # 将新用户加入房间
-            conn = UserConnection(user_id=user_id, websocket=websocket)
+            conn = UserConnection(user_id=user_id, websocket=websocket, nickname=nickname)
             self._rooms[room_id][user_id] = conn
             self._user_room[user_id] = room_id
 
@@ -80,7 +81,7 @@ class ConnectionManager:
             }, exclude_user_id=user_id)
 
         # 给新用户发送当前房间状态（包含自己）
-        all_members = existing + [{"user_id": user_id, "status": conn.status}]
+        all_members = existing + [{"user_id": user_id, "nickname": nickname, "status": conn.status}]
         await self._send_json(websocket, {
             "type": "room_state",
             "members": all_members,
@@ -94,6 +95,7 @@ class ConnectionManager:
         await self._broadcast(room_id, {
             "type": "user_join",
             "user_id": user_id,
+            "nickname": nickname,
             "status": conn.status,
         }, exclude_user_id=user_id)
 

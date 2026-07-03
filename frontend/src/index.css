@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Warm study room theme - OKLCH raw channel values (Tailwind wraps with oklch()) */
+    --background: 0.973 0.014 83; /* warm cream */
+    --foreground: 0.279 0.016 281; /* deep indigo ink */
+
+    --muted: 0.945 0.012 70;
+    --muted-foreground: 0.556 0.012 70;
+
+    --popover: 0.985 0.010 83;
+    --popover-foreground: 0.279 0.016 281;
+
+    --card: 0.985 0.010 83;
+    --card-foreground: 0.279 0.016 281;
+
+    --primary: 0.480 0.103 280; /* academic indigo */
+    --primary-foreground: 0.985 0.010 83;
+
+    --secondary: 0.945 0.012 70;
+    --secondary-foreground: 0.279 0.016 281;
+
+    --accent: 0.945 0.012 70;
+    --accent-foreground: 0.279 0.016 281;
+
+    --focus: 0.620 0.100 145; /* sage green */
+    --focus-foreground: 0.985 0.010 83;
+
+    --destructive: 0.580 0.115 12; /* soft rose */
+    --destructive-foreground: 0.985 0.010 83;
+
+    --border: 0.895 0.022 70; /* warm gray */
+    --input: 0.895 0.022 70;
+    --ring: 0.480 0.103 280;
+
+    --radius: 0.625rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}

@@ -5,6 +5,34 @@
 
 ---
 
+## [Unreleased] — 2026-07-04
+
+### Changed (前端从 Vue 3 完全重写为 React + TSX)
+
+- **技术栈切换**：Vue 3 → React 18 + TypeScript (非严格模式)，保留现有 FastAPI 后端与 OKLCH 暖调书房主题
+- **UI 组件库**：shadcn-vue → shadcn/ui (React 版) + Radix UI primitives，14 个原子组件手写（button/card/input/label/tabs/dialog/alert-dialog/dropdown-menu/badge/avatar/scroll-area/separator/tooltip/sonner/skeleton）
+- **状态管理**：Pinia 风格 → Zustand stores (`authStore` / `uiStore`) + TanStack Query v5 hooks（useRooms/useDashboard/useFollow/useLeaderboard/useSettings/useFocus/useCurrentUser）
+- **HTTP 层**：fetch 封装 → Axios 实例 (`lib/api.ts`)，JWT 请求拦截器 + 401 自动清 token 跳登录，`buildWsUrl()` 辅助函数
+- **表单**：原生 v-model → React Hook Form + Zod schema 校验（login/register 表单）
+- **路由**：Vue Router → React Router v6，`AuthGuard` 基于 `isAuthenticated` 守卫，路由 `/room/:roomId` 替代 query string
+- **动画**：Vue `<Transition>` → framer-motion `<AnimatePresence>`（摸鱼遮罩/退出确认/删除确认/踢人确认/复制提示）
+- **图表**：手动 ECharts init/dispose → `echarts-for-react` 组件（Heatmap/DistributionChart/ScoreGauge），自动生命周期管理
+- **页面结构**：`src/views/` → `src/pages/` + `src/components/dashboard/` 7 个子组件
+- **API 模块化**：`src/api/` 按模块拆分（auth/rooms/focus/dashboard/follow/leaderboard/settings），`src/types/api.ts` 集中类型定义
+- **滑块指示器**：Login/Dashboard/Leaderboard 三处 Tabs 滑动指示器用 inline `style` + `transform` 实现（保持 Vue 版视觉效果）
+
+### Added (React 重构新增)
+- **Tailwind 配置**：OKLCH 颜色 token 通过 `oklch(var(--token))` 桥接，CSS 变量存储原始通道值（注释说明防双重包装 bug）
+- **代码分割**：Vite `manualChunks` 拆分 echarts/radix/react-vendor 三个 vendor chunk
+- **`.gitignore` / `eslint.config.js` / `tsconfig.json` / `vite.config.ts`**：React-TS 标准脚手架配置
+- **dev proxy**：`/api` → `localhost:8000`，`/ws` → `ws://localhost:8000`（WebSocket 代理）
+
+### Fixed
+- **房间排行榜 API 类型**：后端返回 `{items, period}` 而非裸数组，`roomsApi.leaderboard` 类型修正为 `LeaderboardResponse`，`fetchLeaderboard` 提取 `.items`
+- **OKLCH 双重包装 bug**：Tailwind config `oklch(var(--border))` + CSS `oklch(0.480 ...)` 冲突，CSS 变量改为存储原始通道值 `0.480 0.103 280`
+
+---
+
 ## [Unreleased] — 2026-06-10
 
 ### Added (Wave 0-5: 前端 shadcn-vue 重构)

@@ -1,7 +1,7 @@
 # PROJECT_STATE.md — 在线自习室项目单点真相
 
-> 最后更新：2026-06-10
-> 当前阶段：前端已迁移至 shadcn-vue + Tailwind v4，下一步 v2 功能（番茄钟）或上线部署
+> 最后更新：2026-07-04
+> 当前阶段：前端已从 Vue 3 重写为 React + TSX，下一步 v2 功能（番茄钟）或上线部署
 
 ---
 
@@ -15,7 +15,14 @@
 
 | 层 | 技术 | 说明 |
 |----|------|------|
-| 前端 | Vue 3 + Vite | SPA，Page Visibility API 检测切屏 |
+| 前端 | React 18 + TypeScript + Vite | SPA，Page Visibility API 检测切屏 |
+| UI 组件 | shadcn/ui + Radix UI + Tailwind CSS | 原子组件库 |
+| 客户端状态 | Zustand | authStore / uiStore |
+| 服务端状态 | TanStack Query v5 | 数据获取与缓存 |
+| 表单 | React Hook Form + Zod | 类型安全校验 |
+| 图表 | ECharts + echarts-for-react | 热力图/分布/仪表盘 |
+| 动画 | framer-motion | 页面过渡与弹窗 |
+| HTTP | Axios | JWT 拦截器 + 401 重定向 |
 | 后端框架 | FastAPI | HTTP REST + WebSocket |
 | 模块/DI/ORM | bedrock-py | manifest-driven 模块管理，SQLAlchemy 2.0 |
 | 数据库 | SQLite | MVP 阶段，后续可换 PostgreSQL |
